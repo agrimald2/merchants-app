@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,4 +28,10 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return Inertia::render('Admin/Home');
     })->name('dashboard');
+
+    Route::prefix('admin')->group(function () {
+        Route::get('/visits', [AdminController::class, 'visitList'])->name('admin.visits');
+        
+        Route::get('/merchants/all', [AdminController::class, 'getMerchants'])->name('admin.merchants.all');
+    });
 });

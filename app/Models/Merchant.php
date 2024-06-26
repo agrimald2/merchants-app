@@ -18,4 +18,14 @@ class Merchant extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * The points of sale that belong to the merchant.
+     */
+    public function pointsOfSale()
+    {
+        return $this->belongsToMany(PointOfSale::class, 'merchant_point_of_sales')
+                    ->withPivot('frequency')
+                    ->withTimestamps();
+    }
 }

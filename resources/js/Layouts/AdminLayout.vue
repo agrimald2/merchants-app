@@ -25,8 +25,7 @@ const logout = () => {
         <Banner />
 
         <div class="min-h-screen bg-gray-100">
-            <nav class="bg-red-ac">
-                <!-- Primary Navigation Menu -->
+            <nav class="bg-red-ac sticky top-0 z-50">                <!-- Primary Navigation Menu -->
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
                         <div class="flex items-center">
@@ -73,7 +72,7 @@ const logout = () => {
                                         </div>
 
                                         <DropdownLink :href="route('profile.show')">
-                                            Profile
+                                            Perfil
                                         </DropdownLink>
 
                                         <div class="border-t border-gray-200" />
@@ -81,7 +80,7 @@ const logout = () => {
                                         <!-- Authentication -->
                                         <form @submit.prevent="logout">
                                             <DropdownLink as="button">
-                                                Log Out
+                                                Cerrar Sesión
                                             </DropdownLink>
                                         </form>
                                     </template>
@@ -102,10 +101,10 @@ const logout = () => {
 
                 <!-- Responsive Navigation Menu -->
                 <div :class="{ 'block': showingNavigationDropdown, 'hidden': !showingNavigationDropdown }"
-                    class="sm:hidden">
+                    class="sm:hidden bg-white-ac">
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            Dashboard
+                            <span class="font-bold">Dashboard</span>
                         </ResponsiveNavLink>
                     </div>
 
@@ -125,13 +124,13 @@ const logout = () => {
 
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('profile.show')" :active="route().current('profile.show')">
-                                Profile
+                                Perfil
                             </ResponsiveNavLink>
 
                             <!-- Authentication -->
                             <form method="POST" @submit.prevent="logout">
                                 <ResponsiveNavLink as="button">
-                                    Log Out
+                                    Cerrar Sesión
                                 </ResponsiveNavLink>
                             </form>
                         </div>
@@ -141,7 +140,7 @@ const logout = () => {
 
             <!-- Page Heading -->
             <header v-if="$slots.header" class="bg-red-ac shadow rounded-b-3xl">
-                <div class="max-w-7xl mx-auto pb-3 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-7xl mx-auto pb-3 px-4 sm:px-6 lg:px-8 pt-2">
                     <slot name="header" />
                 </div>
             </header>

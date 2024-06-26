@@ -15,7 +15,7 @@ class MerchantsSeeder extends Seeder
     {
         User::create([
             'name' => 'Juan Perez',
-            'email' => 'mercaderista@latech.lat',
+            'username' => 'mercaderista',
             'password' => bcrypt('123456789'),
             'role_id' => 2
         ]);

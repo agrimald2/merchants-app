@@ -13,7 +13,7 @@ class MerchantsSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
+        $user = User::create([
             'name' => 'Juan Perez',
             'username' => 'mercaderista',
             'password' => bcrypt('123456789'),

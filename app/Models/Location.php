@@ -19,4 +19,12 @@ class Location extends Model
     {
         return $this->belongsTo(SubRegion::class);
     }
+
+    /**
+     * Get the region through the sub-region.
+     */
+    public function region()
+    {
+        return $this->hasOneThrough(Region::class, SubRegion::class);
+    }
 }

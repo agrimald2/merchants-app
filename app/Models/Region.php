@@ -19,4 +19,12 @@ class Region extends Model
     {
         return $this->hasMany(SubRegion::class);
     }
+
+    /**
+     * Get the locations for the region through sub-regions.
+     */
+    public function locations()
+    {
+        return $this->hasManyThrough(Location::class, SubRegion::class);
+    }
 }

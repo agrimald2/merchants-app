@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('locations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('subregion_id');
+            $table->unsignedBigInteger('sub_region_id');
             $table->string('name');
             $table->timestamps();
             $table->softDeletes();

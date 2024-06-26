@@ -27,4 +27,12 @@ class Location extends Model
     {
         return $this->hasOneThrough(Region::class, SubRegion::class);
     }
+
+    /**
+     * Get the point of sales for the location.
+     */
+    public function pointOfSales()
+    {
+        return $this->hasMany(PointOfSale::class);
+    }
 }

@@ -20,7 +20,8 @@
                         <div>
                             <label for="region" class="block text-sm font-medium text-gray-700">Región</label>
                             <select id="region" v-model="selectedRegion"
-                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                @change="filterMerchants">
                                 <option value="">Todos</option>
                                 <option v-for="region in regions" :key="region.id" :value="region.id">{{ region.name }}
                                 </option>
@@ -29,7 +30,8 @@
                         <div>
                             <label for="location" class="block text-sm font-medium text-gray-700">Locación</label>
                             <select id="location" v-model="selectedLocation"
-                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                @change="filterMerchants">
                                 <option value="">Todos</option>
                                 <option v-for="location in locations" :key="location.id" :value="location.id">
                                     {{ location.name }}
@@ -43,7 +45,7 @@
                             Mercaderista</label>
                         <input type="text" id="merchantSearch" v-model="searchQuery"
                             class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                            placeholder="Buscar por nombre">
+                            placeholder="Buscar por nombre o DNI" @input="filterMerchants">
                     </div>
 
                     <div class="grid grid-cols-2 sm:grid-cols-2 gap-4">
@@ -79,11 +81,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="merchant in merchants" :key="merchant.id" class="border-b hover:bg-gray-100">
+                        <tr v-for="merchant in filteredMerchants" :key="merchant.id" class="border-b hover:bg-gray-100">
                             <td class="py-3 px-4">{{ merchant.name }}</td>
                             <td class="py-3 px-4">{{ merchant.dni }}</td>
                             <td class="py-3 px-4">{{ merchant.phone }}</td>
-                            <td class="py-3 px-4">{{ merchant.location }}</td>
+                            <td class="py-3 px-4">{{ merchant.location.name }}</td>
                             <td class="py-3 px-4 flex space-x-2">
                                 <button @click="viewDetails(merchant)"
                                     class="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition">
@@ -99,7 +101,7 @@
                 </table>
             </div>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:hidden">
-                <div v-for="merchant in merchants" :key="merchant.id" class="bg-white shadow-md rounded-lg p-4">
+                <div v-for="merchant in filteredMerchants" :key="merchant.id" class="bg-white shadow-md rounded-lg p-4">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold">{{ merchant.name }} - {{ merchant.dni }}</h3>
                         <div class="flex space-x-2">
@@ -114,7 +116,7 @@
                         </div>
                     </div>
                     <div class="text-sm text-gray-700">
-                        <p><strong>Loc:</strong> {{ merchant.location }}</p>
+                        <p><strong>Loc:</strong> {{ merchant.location.name }}</p>
                         <p><strong>Phone:</strong> {{ merchant.phone }}</p>
                     </div>
                 </div>
@@ -142,6 +144,7 @@ export default {
     data() {
         return {
             merchants: [],
+            filteredMerchants: [],
             showAddModal: false,
             showDetailsModal: false,
             showRemoveModal: false,
@@ -154,6 +157,9 @@ export default {
             selectedMerchant: null,
             regions: [],
             locations: [],
+            selectedRegion: '',
+            selectedLocation: '',
+            searchQuery: ''
         };
     },
     mounted() {
@@ -169,6 +175,7 @@ export default {
             axios.get('/admin/merchants/all')
                 .then(response => {
                     this.merchants = response.data;
+                    this.filterMerchants();
                 })
                 .catch(error => {
                     console.error('Error fetching merchants:', error);
@@ -194,6 +201,14 @@ export default {
                 console.error('Error fetching locations:', error);
             }
         },
+        filterMerchants() {
+            this.filteredMerchants = this.merchants.filter(merchant => {
+                const matchesRegion = this.selectedRegion ? merchant.location.sub_region.region.id === this.selectedRegion : true;
+                const matchesLocation = this.selectedLocation ? merchant.location.id === this.selectedLocation : true;
+                const matchesSearch = this.searchQuery ? (merchant.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || merchant.dni.includes(this.searchQuery)) : true;
+                return matchesRegion && matchesLocation && matchesSearch;
+            });
+        }
     }
 };
 </script>

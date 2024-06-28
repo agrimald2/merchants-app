@@ -33,14 +33,25 @@ class AdminController extends Controller
 
     public function getMerchants()
     {
-        $merchants = Merchant::with(['user', 'location'])->get()->map(function ($merchant) {
+        $merchants = Merchant::with(['user', 'location.subRegion.region'])->get()->map(function ($merchant) {
             return [
                 'id' => $merchant->id,
                 'name' => $merchant->user->name,
                 'username' => $merchant->user->username,
                 'dni' => $merchant->dni,
                 'phone' => $merchant->phone,
-                'location' => $merchant->location->name,
+                'location' => [
+                    'id' => $merchant->location->id,
+                    'name' => $merchant->location->name,
+                    'sub_region' => [
+                        'id' => $merchant->location->subRegion->id,
+                        'name' => $merchant->location->subRegion->name,
+                        'region' => [
+                            'id' => $merchant->location->subRegion->region->id,
+                            'name' => $merchant->location->subRegion->region->name,
+                        ],
+                    ],
+                ],
             ];
         });
 

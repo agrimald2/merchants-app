@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\SubRegionController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\MerchantController;
+use App\Http\Controllers\PointOfSaleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,3 +26,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/regions', [RegionController::class, 'index']);
 Route::get('/subregions', [SubRegionController::class, 'index']);
 Route::get('/locations', [LocationController::class, 'index']);
+
+Route::get('/merchants', [MerchantController::class, 'index']);
+
+Route::get('/pointOfSales', [PointOfSaleController::class, 'index']);

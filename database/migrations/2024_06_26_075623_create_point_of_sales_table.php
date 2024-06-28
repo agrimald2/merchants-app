@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('table')->nullable();
             $table->unsignedBigInteger('location_id');
             $table->timestamps(); 
+            $table->softDeletes();
         });
     }
 

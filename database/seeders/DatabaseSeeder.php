@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             RegionsSeeder::class,
             SubRegionsSeeder::class,
             LocationsSeeder::class,
+            
+            PointOfSalesSeeder::class,
         ]);
     }
 }

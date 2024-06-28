@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Merchant;
+use App\Models\PointOfSale;
 use Log;
 
 class AdminController extends Controller
 {
-    public function viewDailyProgress()
+    public function overviewMerchants()
     {
-        return inertia('Admin/DailyProgress', [
+        return inertia('Admin/Overview/MerchantsOverview', [
             'visits' => [
                 ['id' => 1, 'name' => 'Visit 1'],
                 ['id' => 2, 'name' => 'Visit 2'],
@@ -59,6 +60,34 @@ class AdminController extends Controller
         return response()->json($merchants);
     }
 
+    public function getPointOfSales()
+    {
+        $pointOfSales = PointOfSale::with(['location.subRegion.region'])->get()->map(function ($pos) {
+            return [
+                'id' => $pos->id,
+                'code' => $pos->code,
+                'name' => $pos->name,
+                'address' => $pos->address,
+                'route' => $pos->route,
+                'table' => $pos->table,
+                'location' => [
+                    'id' => $pos->location->id,
+                    'name' => $pos->location->name,
+                    'sub_region' => [
+                        'id' => $pos->location->subRegion->id,
+                        'name' => $pos->location->subRegion->name,
+                        'region' => [
+                            'id' => $pos->location->subRegion->region->id,
+                            'name' => $pos->location->subRegion->region->name,
+                        ],
+                    ],
+                ],
+            ];
+        });
+
+        Log::debug($pointOfSales);
+        return response()->json($pointOfSales);
+    }
     public function uploadDataIndex()
     {
         return inertia('Admin/UploadData/Index');
@@ -67,6 +96,11 @@ class AdminController extends Controller
     public function merchantsIndex()
     {
         return inertia('Admin/UploadData/Merchants/Index');
+    }
+
+    public function pointOfSalesIndex()
+    {
+        return inertia('Admin/UploadData/PointOfSales/Index');
     }
 
 }

@@ -2,7 +2,7 @@
     <AdminLayout title="Dashboard">
         <template #header>
             <h2 class="font-semibold text-lg text-white leading-tight text-center">
-                VISITAS
+                Visitas <span class="ml-2 bg-white-ac text-black px-2 py-1 rounded">35%</span>
             </h2>
         </template>
 
@@ -29,22 +29,6 @@
                         </select>
                     </div>
                 </div>
-
-                <div class="grid grid-cols-3 gap-4 mb-4">
-                    <div class="bg-green-500 text-white rounded-lg p-4 flex flex-col items-center">
-                        <div class="text-2xl font-bold">{{ objetive }}</div>
-                        <div class="text-sm">Objetivo</div>
-                    </div>
-                    <div class="bg-green-500 text-white rounded-lg p-4 flex flex-col items-center">
-                        <div class="text-2xl font-bold">{{ done }}</div>
-                        <div class="text-sm">Realizadas</div>
-                    </div>
-                    <div class="bg-green-500 text-white rounded-lg p-4 flex flex-col items-center">
-                        <div class="text-2xl font-bold">{{ pending }}</div>
-                        <div class="text-sm">Pendientes</div>
-                    </div>
-                </div>
-
                 <div class="mb-4">
                     <label for="merchant" class="block text-sm font-medium text-gray-700">Seleccionar
                         Mercaderista</label>
@@ -74,8 +58,23 @@
                 </div>
             </div>
         </div>
-        <div class="px-3 pt-6">
-            <MerchantProgressComponent v-for="i in 40"/>
+        <div class="px-3 pt-2">
+            <div
+                class="bg-white pt-2 pb-2 px-3 rounded-lg shadow-md flex items-center justify-between space-x-4 my-3 w-full">
+                <div class="grid grid-cols-8 w-full py-1">
+                    <div class="col-span-4 text-left font-bold text-red-800 text-lg">
+                        Mercaderista
+                    </div>
+                    <div class="col-span-2 text-left font-bold text-red-800 text-lg">
+                        Objetivo
+                    </div>
+                    <div class="col-span-2 text-left font-bold text-red-800 text-lg">
+                        Avance
+                    </div>
+                </div>
+            </div>
+            <MerchantProgressComponent v-for="merchantProgress in merchantProgresses"
+                :merchantProgress="merchantProgress" />
         </div>
     </AdminLayout>
 </template>
@@ -93,10 +92,23 @@ export default {
             regions: [],
             locations: [],
             merchants: [],
-
-            objetive: 0,
-            done: 0,
-            pending: 0,
+            merchantProgresses: [
+                { name: "Alonso Grimaldo", done: 5, total: 10 },
+                { name: "Alan García Perez", done: 7, total: 12 },
+                { name: "José A. Le Tongué", done: 3, total: 8 },
+                { name: "Abner Vargas", done: 9, total: 15 },
+                { name: "Salvador Palacios", done: 6, total: 10 },
+                { name: "Dina Boluarte", done: 4, total: 9 },
+                { name: "Tupac Amaru II", done: 8, total: 14 },
+                { name: "Abimael Guzmán", done: 2, total: 7 },
+                { name: "Abner DameLuz Gonzales", done: 1, total: 15 },
+                { name: "Paolo Guerrero", done: 5, total: 11 },
+                { name: "Yahaira Plasencia", done: 7, total: 13 },
+                { name: "Amacharo Auxilio", done: 6, total: 12 },
+                { name: "Jefferson F. Farfan", done: 9, total: 14 },
+                { name: "Nicolás Maduro", done: 3, total: 6 },
+                { name: "Olivia Rodrigo", done: 8, total: 10 }
+            ],
             selectedRegion: '',
             selectedLocation: '',
             selectedMerchant: '',
@@ -107,6 +119,7 @@ export default {
         this.getRegions();
         this.getLocations();
         this.getMerchants();
+        this.sortMerchantProgresses();
     },
     methods: {
         async getRegions() {
@@ -132,6 +145,9 @@ export default {
             } catch (error) {
                 console.error('Error fetching merchants:', error);
             }
+        },
+        sortMerchantProgresses() {
+            this.merchantProgresses.sort((a, b) => (a.done / a.total) - (b.done / b.total));
         }
     }
 };

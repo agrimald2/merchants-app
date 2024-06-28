@@ -1,5 +1,5 @@
 <template>
-    <AdminLayout title="Mercaderistas">
+    <AdminLayout title="POS">
         <template #header>
             <div class="flex items-center justify-between w-full">
                 <!-- Back Button-->
@@ -7,7 +7,7 @@
                     <i class="fa-solid fa-circle-chevron-left"></i>
                 </button>
                 <h2 class="font-semibold text-lg text-white leading-tight mx-auto">
-                    Mercaderistas
+                    Puntos de Venta
                 </h2>
                 <div class="w-8"></div> <!-- Placeholder to balance the flex layout -->
             </div>
@@ -41,11 +41,10 @@
                     </div>
 
                     <div class="mb-4">
-                        <label for="merchantSearch" class="block text-sm font-medium text-gray-700">Buscar
-                            Mercaderista</label>
+                        <label for="merchantSearch" class="block text-sm font-medium text-gray-700">Buscar Punto de Venta</label>
                         <input type="text" id="merchantSearch" v-model="searchQuery"
                             class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                            placeholder="Buscar por nombre o DNI" @input="filterMerchants">
+                            placeholder="Buscar por Nombre o Razón Social" @input="filterMerchants">
                     </div>
 
                     <div class="grid grid-cols-2 sm:grid-cols-2 gap-4">
@@ -74,8 +73,10 @@
                     <thead class="bg-gray-200">
                         <tr>
                             <th class="py-3 px-4 text-left">Name</th>
-                            <th class="py-3 px-4 text-left">DNI</th>
-                            <th class="py-3 px-4 text-left">Celular</th>
+                            <th class="py-3 px-4 text-left">Code</th>
+                            <th class="py-3 px-4 text-left">Address</th>
+                            <th class="py-3 px-4 text-left">Route</th>
+                            <th class="py-3 px-4 text-left">Table</th>
                             <th class="py-3 px-4 text-left">Locación</th>
                             <th class="py-3 px-4 text-left">Actions</th>
                         </tr>
@@ -83,8 +84,10 @@
                     <tbody>
                         <tr v-for="merchant in filteredMerchants" :key="merchant.id" class="border-b hover:bg-gray-100">
                             <td class="py-3 px-4">{{ merchant.name }}</td>
-                            <td class="py-3 px-4">{{ merchant.dni }}</td>
-                            <td class="py-3 px-4">{{ merchant.phone }}</td>
+                            <td class="py-3 px-4">{{ merchant.code }}</td>
+                            <td class="py-3 px-4">{{ merchant.address }}</td>
+                            <td class="py-3 px-4">{{ merchant.route }}</td>
+                            <td class="py-3 px-4">{{ merchant.table }}</td>
                             <td class="py-3 px-4">{{ merchant.location.name }}</td>
                             <td class="py-3 px-4 flex space-x-2">
                                 <button @click="viewDetails(merchant)"
@@ -103,7 +106,7 @@
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:hidden">
                 <div v-for="merchant in filteredMerchants" :key="merchant.id" class="bg-white shadow-md rounded-lg p-4">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold">{{ merchant.name }} - {{ merchant.dni }}</h3>
+                        <h3 class="text-lg font-semibold">{{ merchant.name }} - {{ merchant.code }}</h3>
                         <div class="flex space-x-2">
                             <button @click="viewDetails(merchant)"
                                 class="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition">
@@ -116,8 +119,8 @@
                         </div>
                     </div>
                     <div class="text-sm text-gray-700">
-                        <p><strong>Loc:</strong> {{ merchant.location.name }}</p>
-                        <p><strong>Phone:</strong> {{ merchant.phone }}</p>
+                        <p><strong><i class="fa-solid fa-location-dot"></i></strong> {{ merchant.address }}</p>
+                        <p><strong><i class="fa-regular fa-map"></i></strong> {{ merchant.location.name }}</p>
                     </div>
                 </div>
             </div>
@@ -150,9 +153,10 @@ export default {
             showRemoveModal: false,
             newMerchant: {
                 name: '',
-                username: '',
-                dni: '',
-                phone: ''
+                code: '',
+                address: '',
+                route: '',
+                table: ''
             },
             selectedMerchant: null,
             regions: [],
@@ -172,7 +176,7 @@ export default {
             this.$inertia.get(route('admin.uploadData'));
         },
         fetchMerchants() {
-            axios.get('/admin/merchants/all')
+            axios.get('/admin/pointOfSales/all')
                 .then(response => {
                     this.merchants = response.data;
                     this.filterMerchants();
@@ -205,7 +209,7 @@ export default {
             this.filteredMerchants = this.merchants.filter(merchant => {
                 const matchesRegion = this.selectedRegion ? merchant.location.sub_region.region.id === this.selectedRegion : true;
                 const matchesLocation = this.selectedLocation ? merchant.location.id === this.selectedLocation : true;
-                const matchesSearch = this.searchQuery ? (merchant.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || merchant.dni.includes(this.searchQuery)) : true;
+                const matchesSearch = this.searchQuery ? (merchant.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || merchant.code.includes(this.searchQuery)) : true;
                 return matchesRegion && matchesLocation && matchesSearch;
             });
         }

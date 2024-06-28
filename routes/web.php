@@ -32,9 +32,12 @@ Route::middleware([
     Route::prefix('admin')->group(function () {
         Route::get('/uploadData', [AdminController::class, 'uploadDataIndex'])->name('admin.uploadData');
         Route::get('/visits', [AdminController::class, 'visitList'])->name('admin.visits');
-        Route::get('/dailyProgress', [AdminController::class, 'viewDailyProgress'])->name('admin.dailyProgress');
         Route::get('/merchants/all', [AdminController::class, 'getMerchants'])->name('admin.merchants.all');
+        Route::get('/pointOfSales/all', [AdminController::class, 'getPointOfSales'])->name('admin.pointOfSales.all');
         
         Route::get('/merchants', [AdminController::class, 'merchantsIndex'])->name('admin.merchants');
+        Route::get('/pointOfSales', [AdminController::class, 'pointOfSalesIndex'])->name('admin.pointOfSales');
+        
+        Route::get('/overview/merchants', [AdminController::class, 'overviewMerchants'])->name('admin.overviewMerchants');
     });
 });

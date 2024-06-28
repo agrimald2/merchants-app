@@ -14,48 +14,48 @@ class PointOfSalesSeeder extends Seeder
     public function run()
     {
         PointOfSale::create([
-            'code' => 'POS001',
-            'name' => 'Point of Sale 1',
-            'address' => '123 Main St',
+            'code' => '1171410',
+            'name' => 'Mamani Vargas Eleuteria',
+            'address' => 'Calle Falsa 1239',
             'route' => 'Route1',
             'table' => 'Table1',
-            'location_id' => 1,
+            'location_id' => 10,
         ]);
 
         PointOfSale::create([
-            'code' => 'POS002',
-            'name' => 'Point of Sale 2',
-            'address' => '456 Elm St',
+            'code' => '1178783',
+            'name' => 'Toribio Guerra Nelly María',
+            'address' => 'Calle Las Redes 341',
             'route' => 'Route2',
             'table' => 'Table2',
-            'location_id' => 2,
+            'location_id' => 10,
         ]);
 
         PointOfSale::create([
-            'code' => 'POS003',
-            'name' => 'Point of Sale 3',
-            'address' => '789 Oak St',
+            'code' => '12422925',
+            'name' => 'Chipana Gallardo María Rosa',
+            'address' => 'Jiron Ventanilla 842',
             'route' => 'Route3',
             'table' => 'Table3',
-            'location_id' => 3,
+            'location_id' => 7,
         ]);
 
         PointOfSale::create([
-            'code' => 'POS004',
-            'name' => 'Point of Sale 4',
-            'address' => '101 Pine St',
+            'code' => '11822995',
+            'name' => 'Rojas Contreras Maribel Aurora',
+            'address' => 'Av. SiempreViva 823',
             'route' => 'Route4',
             'table' => 'Table4',
-            'location_id' => 4,
+            'location_id' => 8,
         ]);
 
         PointOfSale::create([
             'code' => 'POS005',
-            'name' => 'Point of Sale 5',
-            'address' => '202 Maple St',
+            'name' => 'Ruiz García Diomedes Tito',
+            'address' => 'Av Velazco Astete 3813',
             'route' => 'Route5',
             'table' => 'Table5',
-            'location_id' => 5,
+            'location_id' => 3,
         ]);
     }
 }

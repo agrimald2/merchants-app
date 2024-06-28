@@ -6,7 +6,7 @@
             </h2>
         </template>
 
-        <div class="bg-white p-4">
+        <div class="bg-white p-4 max-w-3xl mx-auto">
             <div class="filters">
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
@@ -58,7 +58,7 @@
                 </div>
             </div>
         </div>
-        <div class="px-3 pt-2">
+        <div class="px-3 pt-2 max-w-3xl mx-auto">
             <div
                 class="bg-white pt-2 pb-2 px-3 rounded-lg shadow-md flex items-center justify-between space-x-4 my-3 w-full">
                 <div class="grid grid-cols-8 w-full py-1">
@@ -93,20 +93,18 @@ export default {
             locations: [],
             merchants: [],
             merchantProgresses: [
-                { name: "Alonso Grimaldo", done: 5, total: 10 },
                 { name: "Alan García Perez", done: 7, total: 12 },
-                { name: "José A. Le Tongué", done: 3, total: 8 },
+                { name: "José A. Le Tongué", done: 5, total: 8 },
                 { name: "Abner Vargas", done: 9, total: 15 },
-                { name: "Salvador Palacios", done: 6, total: 10 },
                 { name: "Dina Boluarte", done: 4, total: 9 },
-                { name: "Tupac Amaru II", done: 8, total: 14 },
-                { name: "Abimael Guzmán", done: 2, total: 7 },
+                { name: "Tupac Amaru II", done: 12, total: 14 },
+                { name: "Abimael Guzmán", done: 5, total: 7 },
                 { name: "Abner DameLuz Gonzales", done: 1, total: 15 },
-                { name: "Paolo Guerrero", done: 5, total: 11 },
+                { name: "Paolo Guerrero", done: 11, total: 11 },
                 { name: "Yahaira Plasencia", done: 7, total: 13 },
                 { name: "Amacharo Auxilio", done: 6, total: 12 },
                 { name: "Jefferson F. Farfan", done: 9, total: 14 },
-                { name: "Nicolás Maduro", done: 3, total: 6 },
+                { name: "Nicolás Maduro", done: 5, total: 6 },
                 { name: "Olivia Rodrigo", done: 8, total: 10 }
             ],
             selectedRegion: '',

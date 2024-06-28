@@ -14,8 +14,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="overflow-hidden sm:rounded-lg flex justify-center items-center h-full">
                     <div class="grid grid-cols-1 gap-4 w-full px-6">
-                        <button @click="() => $inertia.get(route('admin.overviewMerchants'))" class="bg-red-ac text-white font-bold py-3 px-4 rounded-lg w-full">Overview</button>
-                        <button @click="() => $inertia.get(route('admin.visits'))" class="bg-red-ac text-white font-bold py-3 px-4 rounded-lg w-full">Visitas</button>
+                        <button @click="() => $inertia.get(route('admin.overviewMerchants'))" class="bg-red-ac text-white font-bold py-3 px-4 rounded-lg w-full">Avance</button>
                         <button @click="() => $inertia.get(route('admin.uploadData'))" class="bg-red-ac text-white font-bold py-3 px-4 rounded-lg w-full">Carga de Datos</button>
                         <button class="bg-red-ac text-white font-bold py-3 px-4 rounded-lg w-full">Estadísticas</button>
                     </div>

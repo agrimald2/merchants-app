@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('merchants', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->unsignedBigInteger('location_id');
             $table->string('dni');
             $table->string('phone')->nullable();
             $table->timestamps();

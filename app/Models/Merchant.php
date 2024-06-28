@@ -9,7 +9,7 @@ class Merchant extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'dni', 'phone'];
+    protected $fillable = ['user_id', 'dni', 'phone', 'location_id'];
 
     /**
      * Get the user that owns the merchant.
@@ -27,5 +27,13 @@ class Merchant extends Model
         return $this->belongsToMany(PointOfSale::class, 'merchant_point_of_sales')
                     ->withPivot('frequency')
                     ->withTimestamps();
+    }
+
+    /**
+     * Get the location that the merchant belongs to.
+     */
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
     }
 }

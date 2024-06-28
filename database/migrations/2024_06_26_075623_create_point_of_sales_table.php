@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('route');
             $table->string('table')->nullable();
             $table->unsignedBigInteger('location_id');
-            $table->timestamps();
+            $table->timestamps(); 
         });
     }
 

@@ -30,8 +30,11 @@ Route::middleware([
     })->name('dashboard');
 
     Route::prefix('admin')->group(function () {
+        Route::get('/uploadData', [AdminController::class, 'uploadDataIndex'])->name('admin.uploadData');
         Route::get('/visits', [AdminController::class, 'visitList'])->name('admin.visits');
-        
+        Route::get('/dailyProgress', [AdminController::class, 'viewDailyProgress'])->name('admin.dailyProgress');
         Route::get('/merchants/all', [AdminController::class, 'getMerchants'])->name('admin.merchants.all');
+        
+        Route::get('/merchants', [AdminController::class, 'merchantsIndex'])->name('admin.merchants');
     });
 });

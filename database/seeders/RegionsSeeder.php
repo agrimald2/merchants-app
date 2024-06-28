@@ -19,6 +19,7 @@ class RegionsSeeder extends Seeder
             ['name' => 'Sur'],
         ];
 
+    
         DB::table('regions')->insert($regions);
     }
 }

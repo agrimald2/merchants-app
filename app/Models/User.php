@@ -84,4 +84,9 @@ class User extends Authenticatable
     {
         return $this->role->name === 'merchant';
     }
+
+    public function isManager()
+    {
+        return $this->role->name === 'manager';
+    }
 }

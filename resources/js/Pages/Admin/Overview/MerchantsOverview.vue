@@ -102,7 +102,7 @@ export default {
                 { name: "Abner DameLuz Gonzales", done: 1, total: 15 },
                 { name: "Paolo Guerrero", done: 11, total: 11 },
                 { name: "Yahaira Plasencia", done: 7, total: 13 },
-                { name: "Amacharo Auxilio", done: 6, total: 12 },
+                { name: "Jose luis gonzales", done: 6, total: 12 },
                 { name: "Jefferson F. Farfan", done: 9, total: 14 },
                 { name: "Nicolás Maduro", done: 5, total: 6 },
                 { name: "Olivia Rodrigo", done: 8, total: 10 }

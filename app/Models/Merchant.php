@@ -36,4 +36,12 @@ class Merchant extends Model
     {
         return $this->belongsTo(Location::class);
     }
+
+    /**
+     * Get the visits for the merchant.
+     */
+    public function visits()
+    {
+        return $this->hasMany(MerchantVisit::class);
+    }
 }

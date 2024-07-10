@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('point_of_sale_id');
             $table->integer('frequency');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

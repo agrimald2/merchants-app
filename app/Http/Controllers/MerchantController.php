@@ -1,12 +1,41 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\Merchant;
+use App\Models\MerchantVisit;
+use Inertia\Inertia;
+use Log;
+use Carbon\Carbon;
 
 class MerchantController extends Controller
 {
+
+    public function loginWithDNI(Request $request)
+    {
+        $validatedData = $request->validate([
+            'dni' => 'required|string|max:255',
+        ]);
+
+        $merchant = Merchant::where('dni', $validatedData['dni'])->first();
+
+        if (!$merchant) {
+            return response()->json(['error' => 'Merchant not found'], 404);
+        }
+
+        // Assuming you have a method to log in the user
+        auth()->login($merchant->user);
+
+        return redirect()->route('merchant.home');
+    }
+
+    public function login (){
+        return inertia('Merchant/Login');
+    }
+
+    public function home (){
+        return inertia('Merchant/Home');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -80,5 +109,83 @@ class MerchantController extends Controller
         $merchant = Merchant::findOrFail($id);
         $merchant->delete();
         return response()->json(null, 204);
+    }
+
+    public function getPendingVisits(Request $request)
+    {
+        $user = $request->user();
+
+        if (empty($user)) {
+            $user = auth()->user();
+        }
+        
+        $merchantId = $user->merchant->id;
+
+        $pendingVisits = MerchantVisit::where('merchant_id', $merchantId)
+            ->where('status', 'Pending')
+            ->whereDate('programmed_visit_date', Carbon::today())
+            ->with('pointOfSale')
+            ->get();
+
+        return response()->json($pendingVisits);
+    }
+
+    public function startVisit(Request $request)
+    {
+        Log::debug($request);
+        $request->validate([
+            'code' => 'required|string',
+            'start_latitude' => 'required|numeric',
+            'start_longitude' => 'required|numeric',
+        ]);
+
+        $user = $request->user();
+        if (empty($user)) {
+            $user = auth()->user();
+        }
+
+        $merchantId = $user->merchant->id;
+        $code = $request->input('code');
+        $startLatitude = $request->input('start_latitude');
+        $startLongitude = $request->input('start_longitude');
+
+        $visit = MerchantVisit::where('merchant_id', $merchantId)
+            ->where('status', 'Pending')
+            ->where('point_of_sale_id', function ($query) use ($code) {
+                $query->select('id')
+                    ->from('point_of_sales')
+                    ->where('code', $code);
+            })
+            ->whereDate('programmed_visit_date', Carbon::today())
+            ->first();
+
+        if (!$visit) {
+            return response()->json(['error' => 'No pending visit found for today with the provided code.'], 404);
+        }
+
+        $visit->update([
+            'status' => 'On Visit',
+            'start_latitude' => $startLatitude,
+            'start_longitude' => $startLongitude,
+            'visit_started_at' => now(),
+        ]);
+
+        return response()->json($visit);
+    }
+
+    public function isOnVisit(Request $request)
+    {
+        $user = $request->user();
+        if (empty($user)) {
+            $user = auth()->user();
+        }
+
+        $merchantId = $user->merchant->id;
+
+        $onVisit = MerchantVisit::where('merchant_id', $merchantId)
+            ->where('status', 'On Visit')
+            ->exists();
+
+        return response()->json($onVisit);
     }
 }

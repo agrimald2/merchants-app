@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\MerchantController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,4 +41,17 @@ Route::middleware([
         
         Route::get('/overview/merchants', [AdminController::class, 'overviewMerchants'])->name('admin.overviewMerchants');
     });
+
+    Route::prefix('merchant')->group(function () {
+        Route::get('/', [MerchantController::class, 'home'])->name('merchant.home');
+        Route::get('/pendingVisits', [MerchantController::class, 'getPendingVisits'])->name('merchant.pendingVisits');
+        Route::post('/startVisit', [MerchantController::class, 'startVisit'])->name('merchant.startVisit');
+        Route::post('/isOnVisit', [MerchantController::class, 'isOnVisit'])->name('merchant.isOnVisit');
+    });
 });
+
+Route::prefix('merchant')->group(function () {
+    Route::get('/login', [MerchantController::class, 'login'])->name('merchant.login');
+    Route::post('/loginWithDNI', [MerchantController::class, 'loginWithDNI'])->name('merchant.login.dni');
+});
+

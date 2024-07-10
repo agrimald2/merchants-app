@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             LocationsSeeder::class,
             
             PointOfSalesSeeder::class,
+            MerchantVisitsSeeder::class,
         ]);
     }
 }

@@ -22,6 +22,7 @@
                     <input id="manualCode" type="text" v-model="manualCode"
                         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         placeholder="Ingresa el código manualmente" />
+                    <label v-if="errorText" for="manualCode" class="block text-red-700">{{errorText}}</label>
                     <button type="submit" @click="submitCode"
                         class="mt-2 bg-red-ac text-white w-full px-4 py-2 rounded-md hover:bg-red-600 transition font-bold">Enviar</button>
                 </div>
@@ -40,6 +41,7 @@ export default {
         return {
             manualCode: '',
             qrScanned: false,
+            errorText: null
         };
     },
     mounted() {
@@ -75,12 +77,15 @@ export default {
                         this.closeModal();
                     } catch (error) {
                         console.error('Error starting visit:', error);
+                        this.errorText = error;
                     }
                 }, (error) => {
                     console.error('Error getting location:', error);
+                    this.errorText = error;
                 });
             } else {
                 console.error('Geolocation is not supported by this browser.');
+                this.errorText = 'Not supported by this browser';
             }
         }
     }

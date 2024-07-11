@@ -119,7 +119,7 @@ export default {
                     }
                 );
             } else {
-                alert('Geolocation is not supported by this browser.');
+                alert('Geolocation is not supported by this browser. Please ensure location services are enabled in your device settings.');
             }
         }
     }

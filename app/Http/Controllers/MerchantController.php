@@ -224,8 +224,9 @@ class MerchantController extends Controller
         $photoUrls = [];
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $photo) {
-                $path = $photo->store('photos', 'public');
-                $photoUrls[] = Storage::url($path);
+                $filename = time() . '_' . $photo->getClientOriginalName();
+                $photo->move(public_path('photos'), $filename);
+                $photoUrls[] = url('photos/' . $filename);
             }
         }
 

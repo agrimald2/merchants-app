@@ -80,7 +80,9 @@ export default {
                         this.errorText = `Error Code 1: ${error.message}`;
                     }
                 }, (error) => {
-                    console.error('Error getting location:', error);
+                    if (error.code === error.PERMISSION_DENIED) {
+                        alert('Activa los permisos de ubicación para realizar una visita.');
+                    }
                     this.errorText = `Error Code 2: ${error.message}`;
                 });
             } else {

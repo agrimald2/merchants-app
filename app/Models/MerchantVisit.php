@@ -20,6 +20,10 @@ class MerchantVisit extends Model
         'start_longitude',
         'end_latitude',
         'end_longitude',
+        'photo_url_1',
+        'photo_url_2',
+        'photo_url_3',
+        'photo_url_4',
         'status',
     ];
 

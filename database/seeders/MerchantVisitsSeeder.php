@@ -26,5 +26,47 @@ class MerchantVisitsSeeder extends Seeder
             'end_longitude' => null,
             'status' => 'Pending',
         ]);
+
+        MerchantVisit::create([
+            'merchant_id' => 1, 
+            'point_of_sale_id' => 2,
+            'programmed_visit_date' => Carbon::today()->toDateString(),
+            'visit_overview' => null,
+            'visit_started_at' => null,
+            'visit_ended_at' => null,
+            'start_latitude' => null,
+            'start_longitude' => null,
+            'end_latitude' => null,
+            'end_longitude' => null,
+            'status' => 'Pending',
+        ]);
+
+        MerchantVisit::create([
+            'merchant_id' => 1, 
+            'point_of_sale_id' => 3,
+            'programmed_visit_date' => Carbon::today()->toDateString(),
+            'visit_overview' => null,
+            'visit_started_at' => null,
+            'visit_ended_at' => null,
+            'start_latitude' => null,
+            'start_longitude' => null,
+            'end_latitude' => null,
+            'end_longitude' => null,
+            'status' => 'Pending',
+        ]);
+
+        MerchantVisit::create([
+            'merchant_id' => 1, 
+            'point_of_sale_id' => 4,
+            'programmed_visit_date' => Carbon::today()->toDateString(),
+            'visit_overview' => null,
+            'visit_started_at' => null,
+            'visit_ended_at' => null,
+            'start_latitude' => null,
+            'start_longitude' => null,
+            'end_latitude' => null,
+            'end_longitude' => null,
+            'status' => 'Pending',
+        ]);
     }
 }

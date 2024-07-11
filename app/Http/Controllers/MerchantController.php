@@ -7,6 +7,7 @@ use App\Models\MerchantVisit;
 use Inertia\Inertia;
 use Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class MerchantController extends Controller
 {
@@ -130,6 +131,25 @@ class MerchantController extends Controller
         return response()->json($pendingVisits);
     }
 
+    public function getDoneVisits(Request $request)
+    {
+        $user = $request->user();
+
+        if (empty($user)) {
+            $user = auth()->user();
+        }
+        
+        $merchantId = $user->merchant->id;
+
+        $pendingVisits = MerchantVisit::where('merchant_id', $merchantId)
+            ->where('status', 'Done')
+            ->whereDate('programmed_visit_date', Carbon::today())
+            ->with('pointOfSale')
+            ->get();
+
+        return response()->json($pendingVisits);
+    }
+
     public function startVisit(Request $request)
     {
         Log::debug($request);
@@ -167,12 +187,62 @@ class MerchantController extends Controller
             'status' => 'On Visit',
             'start_latitude' => $startLatitude,
             'start_longitude' => $startLongitude,
-            'visit_started_at' => now(),
+            'visit_started_at' => now()->setTimezone('GMT-3'),
         ]);
 
         return response()->json($visit);
     }
 
+    public function endVisit(Request $request)
+    {
+        $request->validate([
+            'visit_id' => 'required|integer|exists:merchant_visits,id',
+            'end_latitude' => 'required|numeric',
+            'end_longitude' => 'required|numeric',
+            'visit_overview' => 'nullable|string',
+            'photos' => 'nullable|array',
+            'photos.*' => 'nullable',
+        ]);
+
+        $user = $request->user();
+        if (empty($user)) {
+            $user = auth()->user();
+        }
+
+        $merchantId = $user->merchant->id;
+        $visitId = $request->input('visit_id');
+
+        $visit = MerchantVisit::where('merchant_id', $merchantId)
+            ->where('id', $visitId)
+            ->where('status', 'On Visit')
+            ->first();
+
+        if (!$visit) {
+            return response()->json(['error' => 'No ongoing visit found with the provided ID.'], 404);
+        }
+
+        $photoUrls = [];
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photo) {
+                $path = $photo->store('photos', 'public');
+                $photoUrls[] = Storage::url($path);
+            }
+        }
+
+        $visit->update([
+            'status' => 'Done',
+            'end_latitude' => $request->input('end_latitude'),
+            'end_longitude' => $request->input('end_longitude'),
+            'visit_ended_at' => now()->setTimezone('GMT-3'),
+            'visit_overview' => $request->input('visit_overview'),
+            'photo_url_1' => $photoUrls[0] ?? null,
+            'photo_url_2' => $photoUrls[1] ?? null,
+            'photo_url_3' => $photoUrls[2] ?? null,
+            'photo_url_4' => $photoUrls[3] ?? null,
+        ]);
+
+        return response()->json($visit);
+    }
     public function isOnVisit(Request $request)
     {
         $user = $request->user();
@@ -182,10 +252,21 @@ class MerchantController extends Controller
 
         $merchantId = $user->merchant->id;
 
-        $onVisit = MerchantVisit::where('merchant_id', $merchantId)
+        $visit = MerchantVisit::where('merchant_id', $merchantId)
             ->where('status', 'On Visit')
-            ->exists();
+            ->first();
 
-        return response()->json($onVisit);
+        $isOnVisit = $visit ? true : false;
+
+        return response()->json([
+            'isOnVisit' => $isOnVisit,
+            'visit' => $visit
+        ]);
+    }
+
+    public function viewVisit($id)
+    {
+        $visit = MerchantVisit::with('pointOfSale')->findOrFail($id);
+        return Inertia::render('Merchant/Visits/Visit', ['visit' => $visit]);
     }
 }

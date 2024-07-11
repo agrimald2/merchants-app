@@ -12,7 +12,15 @@ class LocationController extends Controller
      */
     public function index()
     {
-        $locations = Location::all();
+        $locations = Location::with('subRegion.region')->get()->map(function ($location) {
+            return [
+                'id' => $location->id,
+                'name' => $location->name,
+                'sub_region_id' => $location->subRegion->id,
+                'region_id' => $location->subRegion->region->id
+            ];
+        });
+
         return response()->json($locations);
     }
 

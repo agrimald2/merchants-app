@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use App\Models\Merchant;
 use App\Models\PointOfSale;
 use Log;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -56,7 +57,6 @@ class AdminController extends Controller
             ];
         });
 
-        Log::debug($merchants);
         return response()->json($merchants);
     }
 
@@ -85,7 +85,6 @@ class AdminController extends Controller
             ];
         });
 
-        Log::debug($pointOfSales);
         return response()->json($pointOfSales);
     }
     public function uploadDataIndex()
@@ -103,4 +102,65 @@ class AdminController extends Controller
         return inertia('Admin/UploadData/PointOfSales/Index');
     }
 
+    public function getGeneralVisitProgress($date)
+    {
+        Log::debug("FECHA:");
+        Log::debug($date);
+        // Validate the date format
+        $validatedDate = Carbon::parse($date)->toDateString();
+
+        // Get all merchants with visits scheduled for the given date
+        $merchants = Merchant::whereHas('visits', function ($query) use ($validatedDate) {
+            $query->whereDate('programmed_visit_date', $validatedDate);
+        })->get();
+
+        // Prepare the response data
+        $merchantProgress = $merchants->map(function ($merchant) use ($validatedDate) {
+            $totalVisits = $merchant->visits()->whereDate('programmed_visit_date', $validatedDate)->count();
+            $pendingVisits = $merchant->visits()->whereDate('programmed_visit_date', $validatedDate)->where('status', 'Pending')->count();
+            $completedVisits = $merchant->visits()->whereDate('programmed_visit_date', $validatedDate)->where('status', 'Done')->count();
+
+            // Get the merchant name from the user relation
+            $merchantName = $merchant->user->name;
+
+            return [
+                'merchant_id' => $merchant->id,
+                'merchant_name' => $merchantName,
+                'total_visits' => $totalVisits,
+                'pending_visits' => $pendingVisits,
+                'completed_visits' => $completedVisits,
+            ];
+        });
+
+        return response()->json($merchantProgress);
+    }
+
+    public function getVisitsFromMerchant($merchant_id, $date)
+    {
+        // Validate the date format
+        $validatedDate = Carbon::parse($date)->toDateString();
+
+        // Get the merchant
+        $merchant = Merchant::with('user')->findOrFail($merchant_id);
+
+        // Get the visits for the merchant on the given date
+        $visits = $merchant->visits()->with('pointOfSale')->whereDate('programmed_visit_date', $validatedDate)->get();
+
+        // Filter visits by status
+        $pendingVisits = $visits->where('status', 'Pending');
+        $doneVisits = $visits->where('status', 'Done');
+
+        Log::debug($pendingVisits);
+        
+        // Prepare the data for the view
+        $data = [
+            'merchant' => $merchant,
+            'visits' => $visits,
+            'pending_visits' => $pendingVisits,
+            'done_visits' => $doneVisits,
+            'date' => $validatedDate,
+        ];
+
+        return inertia('Admin/Visits/List', $data);
+    }
 }

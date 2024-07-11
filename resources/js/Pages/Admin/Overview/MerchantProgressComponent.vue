@@ -1,5 +1,5 @@
 <template>
-    <div @click="() => $inertia.get(route('admin.visits'))" class="bg-white pt-2 pb-2 px-3 rounded-lg shadow-md flex items-center justify-between space-x-4 my-3 w-full transition-transform transform hover:scale-105 active:scale-95 cursor-pointer">
+    <div @click="() => $inertia.get(route('admin.visits', { merchant_id: merchantProgress.merchant_id, date: date }))" class="bg-white pt-2 pb-2 px-3 rounded-lg shadow-md flex items-center justify-between space-x-4 my-3 w-full transition-transform transform hover:scale-105 active:scale-95 cursor-pointer">
         <div class="w-full">
             <div :class="progressBarBgColor" class="relative overflow-hidden h-2 mb-1 text-xs flex rounded w-full">
                 <div :style="{ width: `${progressPercentage}%` }"
@@ -10,13 +10,13 @@
             <div class="grid grid-cols-8 w-full py-2">
                 <div class="flex items-center col-span-4">
                     <i class="fa-solid fa-user mr-1"></i>
-                    <div class="font-bold text-gray-900">{{ merchantProgress.name }}</div>
+                    <div class="font-bold text-gray-900">{{ merchantProgress.merchant_name }}</div>
                 </div>
                 <div class="flex items-center col-span-2">
                     <div class="flex items-center">
-                        <div :class="progressTextColor" class="font-bold rounded mr-1 py-1 px-2 text-white">{{ merchantProgress.done }}</div>
+                        <div :class="progressTextColor" class="font-bold rounded mr-1 py-1 px-2 text-white">{{ merchantProgress.completed_visits }}</div>
                         <span class="text-xl font-bold">/</span>
-                        <div :class="progressTextColor" class="font-bold rounded ml-1 py-1 px-2 text-white">{{ merchantProgress.total }}</div>
+                        <div :class="progressTextColor" class="font-bold rounded ml-1 py-1 px-2 text-white">{{ merchantProgress.total_visits }}</div>
                     </div>
                 </div>
                 <div class="flex items-center col-span-2">
@@ -35,7 +35,7 @@ import axios from 'axios';
 
 export default {
     components: {},
-    props: ['merchantProgress'],
+    props: ['merchantProgress', 'date'],
     data() {
         return {
             isModalVisible: false
@@ -43,7 +43,7 @@ export default {
     },
     computed: {
         progressPercentage() {
-            return Math.floor((this.merchantProgress.done / this.merchantProgress.total) * 100);
+            return Math.floor((this.merchantProgress.completed_visits / this.merchantProgress.total_visits) * 100);
         },
         progressBarColor() {
             if (this.progressPercentage <= 59) {

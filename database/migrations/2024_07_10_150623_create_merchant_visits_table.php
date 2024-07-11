@@ -23,6 +23,10 @@ return new class extends Migration
             $table->decimal('start_longitude', 10, 7)->nullable();
             $table->decimal('end_latitude', 10, 7)->nullable();
             $table->decimal('end_longitude', 10, 7)->nullable();
+            $table->string('photo_url_1')->nullable();
+            $table->string('photo_url_2')->nullable();
+            $table->string('photo_url_3')->nullable();
+            $table->string('photo_url_4')->nullable();
             $table->enum('status', ['Pending', 'On Visit', 'Done'])->default('Pending');
             $table->timestamps();
         });

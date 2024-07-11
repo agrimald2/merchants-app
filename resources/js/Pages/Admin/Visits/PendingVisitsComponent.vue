@@ -5,7 +5,7 @@
                 <div>
                     <div class="flex items-center">
                         <i class="fa-solid fa-user"></i>
-                        <div class="font-bold text-gray-900 ml-2">{{ visit.point_of_sale.code }} - {{ visit.point_of_sale.name }}</div>
+                        <div class="font-bold text-gray-900 ml-2"> {{visit.point_of_sale.code}}  -  {{visit.point_of_sale.name}} </div>
                     </div>
                 </div>
             </div>
@@ -15,6 +15,7 @@
                 <div>
                     <div class="flex items-center">
                         <button
+                            disabled
                             class="bg-red-ac text-white px-5 py-1 rounded-md inline-flex items-center w-full font-bold"
                             @click="toggleQRModal">
                             <i class="fa-solid fa-qrcode mr-2"></i>

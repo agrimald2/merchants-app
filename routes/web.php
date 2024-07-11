@@ -18,7 +18,7 @@ use App\Http\Controllers\MerchantController;
 */
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return redirect()->route('merchant.login');
 });
 
 Route::middleware([
@@ -32,7 +32,7 @@ Route::middleware([
 
     Route::prefix('admin')->group(function () {
         Route::get('/uploadData', [AdminController::class, 'uploadDataIndex'])->name('admin.uploadData');
-        Route::get('/visits', [AdminController::class, 'visitList'])->name('admin.visits');
+        Route::get('/visits/{merchant_id}/{date}', [AdminController::class, 'getVisitsFromMerchant'])->name('admin.visits');
         Route::get('/merchants/all', [AdminController::class, 'getMerchants'])->name('admin.merchants.all');
         Route::get('/pointOfSales/all', [AdminController::class, 'getPointOfSales'])->name('admin.pointOfSales.all');
         
@@ -40,13 +40,17 @@ Route::middleware([
         Route::get('/pointOfSales', [AdminController::class, 'pointOfSalesIndex'])->name('admin.pointOfSales');
         
         Route::get('/overview/merchants', [AdminController::class, 'overviewMerchants'])->name('admin.overviewMerchants');
+        Route::get('/generalVisitProgress/{date}', [AdminController::class, 'getGeneralVisitProgress'])->name('admin.generalVisitProgress');
     });
 
     Route::prefix('merchant')->group(function () {
         Route::get('/', [MerchantController::class, 'home'])->name('merchant.home');
         Route::get('/pendingVisits', [MerchantController::class, 'getPendingVisits'])->name('merchant.pendingVisits');
+        Route::get('/doneVisits', [MerchantController::class, 'getDoneVisits'])->name('merchant.doneVisits');
         Route::post('/startVisit', [MerchantController::class, 'startVisit'])->name('merchant.startVisit');
+        Route::post('/endVisit', [MerchantController::class, 'endVisit'])->name('merchant.endVisit');
         Route::post('/isOnVisit', [MerchantController::class, 'isOnVisit'])->name('merchant.isOnVisit');
+        Route::get('/visit/{id}', [MerchantController::class, 'viewVisit'])->name('merchant.view.visit');
     });
 });
 
@@ -54,4 +58,3 @@ Route::prefix('merchant')->group(function () {
     Route::get('/login', [MerchantController::class, 'login'])->name('merchant.login');
     Route::post('/loginWithDNI', [MerchantController::class, 'loginWithDNI'])->name('merchant.login.dni');
 });
-

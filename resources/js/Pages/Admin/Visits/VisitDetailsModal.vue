@@ -15,46 +15,51 @@
             </div>
             <div class="p-4">
                 <div class="flex space-x-4 mb-4">
-                    <button class="text-red-500 border-b-2 border-red-500 pb-1 focus:outline-none">Detalles</button>
-                    <button class="text-gray-500 pb-1 focus:outline-none">Fotos Durante la Visita</button>
+                    <button :class="{'text-red-500 border-b-2 border-red-500': isDetailsSelected, 'text-gray-500': !isDetailsSelected}" @click="selectDetails" class="pb-1 focus:outline-none">Detalles</button>
+                    <button :class="{'text-red-500 border-b-2 border-red-500': !isDetailsSelected, 'text-gray-500': isDetailsSelected}" @click="selectPhotos" class="pb-1 focus:outline-none">Fotos Durante la Visita</button>
                 </div>
-                <div class="mb-4">
+                <div v-if="isDetailsSelected" class="mb-4">
                     <h3 class="font-semibold text-gray-700">Tiempos</h3>
                     <div class="grid grid-cols-3 gap-4 mt-2">
                         <div>
                             <label class="block text-gray-500">Llegada</label>
-                            <div class="text-lg font-medium text-gray-900">10:30 AM</div>
+                            <div class="text-lg font-medium text-gray-900">{{ new Date(visit.visit_started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) }}</div>
                         </div>
                         <div>
                             <label class="block text-gray-500">Salida</label>
-                            <div class="text-lg font-medium text-gray-900">11:00 AM</div>
+                            <div class="text-lg font-medium text-gray-900">{{ new Date(visit.visit_ended_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) }}</div>
                         </div>
                         <div>
                             <label class="block text-gray-500">Tiempo</label>
-                            <div class="text-lg font-medium text-gray-900">30 Minutos</div>
+                            <div class="text-lg font-medium text-gray-900">{{ calculateTotalTime(visit.visit_started_at, visit.visit_ended_at) }}</div>
                         </div>
                     </div>
                 </div>
-                <div class="mb-4">
-                    <h3 class="font-semibold text-gray-700">Ubicación</h3>
+                <div v-if="isDetailsSelected" class="mb-4">
+                    <h3 class="font-semibold text-gray-700">Ubicación - {{visit.point_of_sale.address}}</h3>
                     <div class="flex items-center space-x-4 mt-2">
-                        <button class="text-red-500 border-b-2 border-red-500 pb-1 focus:outline-none">INICIO</button>
-                        <button class="text-gray-500 pb-1 focus:outline-none">FINAL</button>
+                        <button :class="{'text-red-500 border-b-2 border-red-500': isStartSelected, 'text-gray-500': !isStartSelected}" @click="selectStart" class="pb-1 focus:outline-none">INICIO</button>
+                        <button :class="{'text-red-500 border-b-2 border-red-500': !isStartSelected, 'text-gray-500': isStartSelected}" @click="selectEnd" class="pb-1 focus:outline-none">FINAL</button>
                     </div>
-                    <div class="mt-2 text-gray-700">Calle Las Redes 341, La Molina</div>
                     <div class="mt-2">
                         <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15606.484890621829!2d-76.94569140672685!3d-12.069561876416747!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c6c34f1fe2c7%3A0xa091f19f413baad7!2sBCP%20Sede%20Central!5e0!3m2!1ses-419!2spe!4v1719395879455!5m2!1ses-419!2spe"
+                            :src="mapSrc"
                             width="800" height="500" style="border:0;" allowfullscreen="true" loading="lazy"
                             referrerpolicy="no-referrer-when-downgrade" allow="geolocation"></iframe>
                     </div>
                 </div>
-                <div class="mb-4">
+                <div v-if="isDetailsSelected" class="mb-4">
                     <h3 class="font-semibold text-gray-700">Bitácora</h3>
                     <div class="p-4 bg-gray-100 rounded-md text-gray-700">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent tristique at ipsum sed
-                        maximus. Nulla at aliquet neque, a pulvinar quam. Lorem ipsum dolor sit amet, consectetur
-                        adipiscing elit.
+                        {{visit.visit_overview}}
+                    </div>
+                </div>
+                <div v-if="!isDetailsSelected" class="mb-4">
+                    <h3 class="font-semibold text-gray-700">Fotos Durante la Visita</h3>
+                    <div class="carousel">
+                        <div v-for="(photo, index) in visitPhotos" :key="index" class="carousel-item">
+                            <img :src="photo" alt="Visit photo" class="w-full h-64 object-cover rounded-lg">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -67,18 +72,48 @@ import axios from 'axios';
 
 export default {
     components: {},
-    props: [''],
+    props: ['visit'],
     data() {
         return {
-
+            isDetailsSelected: true,
+            isStartSelected: true
         };
     },
-    mounted() {
-
+    computed: {
+        mapSrc() {
+            if (this.isStartSelected) {
+                return `https://www.google.com/maps/embed/v1/place?key=AIzaSyD838-bKnRCBtmc2HgdkxH-GvykXOhUKWI&q=${this.visit.start_latitude},${this.visit.start_longitude}`;
+            } else {
+                return `https://www.google.com/maps/embed/v1/place?key=AIzaSyD838-bKnRCBtmc2HgdkxH-GvykXOhUKWI&q=${this.visit.end_latitude},${this.visit.end_longitude}`;
+            }
+        },
+        visitPhotos() {
+            return [this.visit.photo_url_1, this.visit.photo_url_2, this.visit.photo_url_3, this.visit.photo_url_4].filter(url => url);
+        }
     },
     methods: {
         closeModal() {
             this.$emit('close');
+        },
+        selectDetails() {
+            this.isDetailsSelected = true;
+        },
+        selectPhotos() {
+            this.isDetailsSelected = false;
+        },
+        selectStart() {
+            this.isStartSelected = true;
+        },
+        selectEnd() {
+            this.isStartSelected = false;
+        },
+        calculateTotalTime(start, end) {
+            const startTime = new Date(start);
+            const endTime = new Date(end);
+            const diffMs = endTime - startTime;
+            const diffHrs = Math.floor(diffMs / 3600000);
+            const diffMins = Math.floor((diffMs % 3600000) / 60000);
+            return `${diffHrs}h ${diffMins}m`;
         }
     }
 };
@@ -87,5 +122,16 @@ export default {
 iframe {
     max-width: 100%;
     height: auto;
+}
+.carousel {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+}
+.carousel-item {
+    flex: none;
+    width: 100%;
+    scroll-snap-align: start;
+    margin-right: 16px;
 }
 </style>

@@ -71,6 +71,7 @@ export default {
                             start_longitude: longitude
                         });
                         console.log('Visit started:', response.data);
+                        window.location.href = route('merchant.view.visit', { id: response.data.id });
                         this.closeModal();
                     } catch (error) {
                         console.error('Error starting visit:', error);

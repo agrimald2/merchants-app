@@ -41,6 +41,7 @@ const submit = () => {
                         Ingresar
                     </button>
                 </div>
+                <a href="/login" class="text-blue-500 hover:underline text-center block mt-4">Soy Admin</a>
             </form>
         </div>
     </div>

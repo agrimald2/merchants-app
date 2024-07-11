@@ -77,11 +77,11 @@ export default {
                         this.closeModal();
                     } catch (error) {
                         console.error('Error starting visit:', error);
-                        this.errorText = error;
+                        this.errorText = `Error Code 1: ${error.message}`;
                     }
                 }, (error) => {
                     console.error('Error getting location:', error);
-                    this.errorText = error;
+                    this.errorText = `Error Code 2: ${error.message}`;
                 });
             } else {
                 console.error('Geolocation is not supported by this browser.');

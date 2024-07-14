@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('point_of_sales', function (Blueprint $table) {
             $table->id();
-            $table->string('code');
+            $table->string('code')->unique();
             $table->string('name');
             $table->string('address');
-            $table->string('route');
+            $table->string('route')->nullable();
             $table->string('table')->nullable();
             $table->unsignedBigInteger('location_id');
             $table->timestamps(); 

@@ -270,4 +270,6 @@ class MerchantController extends Controller
         $visit = MerchantVisit::with('pointOfSale')->findOrFail($id);
         return Inertia::render('Merchant/Visits/Visit', ['visit' => $visit]);
     }
+
+
 }

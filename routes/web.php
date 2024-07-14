@@ -41,6 +41,9 @@ Route::middleware([
         
         Route::get('/overview/merchants', [AdminController::class, 'overviewMerchants'])->name('admin.overviewMerchants');
         Route::get('/generalVisitProgress/{date}', [AdminController::class, 'getGeneralVisitProgress'])->name('admin.generalVisitProgress');
+        
+        Route::post('/merchants/upload', [AdminController::class, 'uploadMerchantsExcel'])->name('admin.upload.merchants');
+        Route::post('/pointOfSales/upload', [AdminController::class, 'uploadPointOfSalesExcel'])->name('admin.upload.pointOfSales');
     });
 
     Route::prefix('merchant')->group(function () {

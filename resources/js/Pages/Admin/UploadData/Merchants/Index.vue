@@ -51,16 +51,17 @@
                     <div class="grid grid-cols-2 sm:grid-cols-2 gap-4">
                         <div>
                             <button
-                                class="bg-red-ac text-white px-5 py-1 rounded-md inline-flex items-center w-full font-bold"
-                                @click="showAddModal = true">
-                                <i class="fa-solid fa-circle-plus mr-2"></i>
-                                Añadir
+                                class="bg-blue-500 text-white px-5 py-1 rounded-md inline-flex items-center w-full font-bold"
+                                @click="exportToExcel">
+                                <i class="fa-solid fa-file-excel mr-2"></i>
+                                Exportar Excel
                             </button>
                         </div>
                         <div>
+                            <input type="file" ref="fileInput" @change="handleFileUpload" class="hidden">
                             <button
                                 class="bg-green-700 text-white px-5 py-1 rounded-md inline-flex items-center w-full font-bold"
-                                @click="showAddModal = true">
+                                @click="triggerFileInput">
                                 <i class="fa-solid fa-file-excel mr-2"></i>
                                 Importar Excel
                             </button>
@@ -208,6 +209,54 @@ export default {
                 const matchesSearch = this.searchQuery ? (merchant.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || merchant.dni.includes(this.searchQuery)) : true;
                 return matchesRegion && matchesLocation && matchesSearch;
             });
+        },
+        triggerFileInput() {
+            this.$refs.fileInput.click();
+        },
+        handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                axios.post('/admin/merchants/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                })
+                .then(response => {
+                    this.fetchMerchants();
+                    alert('Archivo subido exitosamente');
+                })
+                .catch(error => {
+                    console.error('Error uploading file:', error);
+                    alert('Error al subir el archivo');
+                });
+            }
+        },
+        exportToExcel() {
+            const filteredData = this.filteredMerchants.map(merchant => ({
+                Name: merchant.name,
+                DNI: merchant.dni,
+                Phone: merchant.phone,
+                Location: merchant.location.name
+            }));
+
+            let csvContent = "\uFEFF"; // Adding BOM for UTF-8 encoding
+            csvContent += "Nombre,DNI,Celular,Locación\n";
+
+            filteredData.forEach(row => {
+                csvContent += `${row.Name},${row.DNI},${row.Phone},${row.Location}\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "lista_mercaderistas.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     }
 };

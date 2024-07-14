@@ -6,8 +6,12 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Merchant;
 use App\Models\PointOfSale;
+use App\Models\User;
+use App\Models\Location;
+use Maatwebsite\Excel\Facades\Excel;
 use Log;
 use Carbon\Carbon;
+
 
 class AdminController extends Controller
 {
@@ -163,4 +167,92 @@ class AdminController extends Controller
 
         return inertia('Admin/Visits/List', $data);
     }
+
+    public function uploadMerchantsExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv',
+        ]);
+
+        $file = $request->file('file');
+        $data = \Excel::toArray([], $file)[0];
+
+        $data = array_slice($data, 1);
+
+        foreach ($data as $row) {
+            $name = $row[0];
+            $dni = $row[1];
+            $phone = $row[2];
+            $locationName = $row[3];
+
+            // Check if merchant already exists
+            if (Merchant::where('dni', $dni)->exists()) {
+                continue;
+            }
+
+            // Find or create location
+            $location = Location::firstOrCreate(
+                ['name' => $locationName],
+                ['name' => $locationName]
+            );
+
+            // Create user
+            $user = User::create([
+                'name' => $name,
+                'username' => $dni,
+                'password' => bcrypt($dni),
+                'role_id' => 2, // Assuming 2 is the role_id for merchants
+            ]);
+
+            // Create merchant
+            Merchant::create([
+                'user_id' => $user->id,
+                'dni' => $dni,
+                'phone' => $phone,
+                'location_id' => $location->id,
+            ]);
+        }
+
+        return response()->json(['message' => 'Merchants uploaded successfully']);
+    }
+
+    public function uploadPointOfSalesExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv',
+        ]);
+
+        $file = $request->file('file');
+        $data = \Excel::toArray([], $file)[0];
+
+        // Skip the header row
+        foreach (array_slice($data, 1) as $row) {
+            $code = $row[0];
+            $name = $row[1];
+            $address = $row[2];
+            $locationName = $row[3];
+
+            // Check if point of sale already exists
+            if (PointOfSale::where('code', $code)->exists()) {
+                continue;
+            }
+
+            // Find or create location
+            $location = Location::firstOrCreate(
+                ['name' => $locationName],
+                ['name' => $locationName]
+            );
+
+            // Create point of sale
+            PointOfSale::create([
+                'code' => $code,
+                'name' => $name,
+                'address' => $address,
+                'location_id' => $location->id,
+            ]);
+        }
+
+        return response()->json(['message' => 'Point of Sales uploaded successfully']);
+    }
+
 }

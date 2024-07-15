@@ -29,4 +29,12 @@ class PointOfSale extends Model
                     ->withPivot('frequency')
                     ->withTimestamps();
     }
+
+    /**
+     * Get the region through the sub-region of the location.
+     */
+    public function region()
+    {
+        return $this->hasOneThrough(Region::class, SubRegion::class, 'id', 'id', 'location_id', 'region_id');
+    }
 }

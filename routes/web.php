@@ -38,12 +38,18 @@ Route::middleware([
         
         Route::get('/merchants', [AdminController::class, 'merchantsIndex'])->name('admin.merchants');
         Route::get('/pointOfSales', [AdminController::class, 'pointOfSalesIndex'])->name('admin.pointOfSales');
+        Route::get('/visitsAsigned', [AdminController::class, 'visitsAsignedIndex'])->name('admin.visitsAsigned');
+        Route::get('/locations', [AdminController::class, 'locationsIndex'])->name('admin.locations');
+
+        
+        Route::get('/getAsignedVisits', [AdminController::class, 'getAsignedVisits'])->name('admin.getAsignedVisits');
         
         Route::get('/overview/merchants', [AdminController::class, 'overviewMerchants'])->name('admin.overviewMerchants');
         Route::get('/generalVisitProgress/{date}', [AdminController::class, 'getGeneralVisitProgress'])->name('admin.generalVisitProgress');
         
         Route::post('/merchants/upload', [AdminController::class, 'uploadMerchantsExcel'])->name('admin.upload.merchants');
         Route::post('/pointOfSales/upload', [AdminController::class, 'uploadPointOfSalesExcel'])->name('admin.upload.pointOfSales');
+        Route::post('/merchants-pointOfSales/upload', [AdminController::class, 'uploadMerchantsPointOfSalesExcel'])->name('admin.upload.merchants-pointOfSales');
     });
 
     Route::prefix('merchant')->group(function () {

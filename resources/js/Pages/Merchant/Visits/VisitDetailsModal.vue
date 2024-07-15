@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <div v-if="isDetailsSelected" class="mb-4">
-                    <h3 class="font-semibold text-gray-700">Ubicación - {{visit.point_of_sale.address}}</h3>
+                    <h3 class="font-semibold text-gray-700">Dirección - {{visit.point_of_sale.address}}</h3>
                     <div class="flex items-center space-x-4 mt-2">
                         <button :class="{'text-red-500 border-b-2 border-red-500': isStartSelected, 'text-gray-500': !isStartSelected}" @click="selectStart" class="pb-1 focus:outline-none">INICIO</button>
                         <button :class="{'text-red-500 border-b-2 border-red-500': !isStartSelected, 'text-gray-500': isStartSelected}" @click="selectEnd" class="pb-1 focus:outline-none">FINAL</button>

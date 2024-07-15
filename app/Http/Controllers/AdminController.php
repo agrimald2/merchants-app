@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Merchant;
 use App\Models\PointOfSale;
+use App\Models\MerchantPointOfSale;
 use App\Models\User;
 use App\Models\Location;
 use Maatwebsite\Excel\Facades\Excel;
@@ -106,6 +107,9 @@ class AdminController extends Controller
         return inertia('Admin/UploadData/PointOfSales/Index');
     }
 
+    public function visitsAsignedIndex(){
+        return inertia('Admin/UploadData/Asignation/Index');
+    }
     public function getGeneralVisitProgress($date)
     {
         Log::debug("FECHA:");
@@ -114,7 +118,7 @@ class AdminController extends Controller
         $validatedDate = Carbon::parse($date)->toDateString();
 
         // Get all merchants with visits scheduled for the given date
-        $merchants = Merchant::whereHas('visits', function ($query) use ($validatedDate) {
+        $merchants = Merchant::with('location')->whereHas('visits', function ($query) use ($validatedDate) {
             $query->whereDate('programmed_visit_date', $validatedDate);
         })->get();
 
@@ -126,10 +130,14 @@ class AdminController extends Controller
 
             // Get the merchant name from the user relation
             $merchantName = $merchant->user->name;
-
+            $merchantDNI = $merchant->dni;
+            $merchantLocation = $merchant->location->name;
+            
             return [
                 'merchant_id' => $merchant->id,
                 'merchant_name' => $merchantName,
+                'merchant_dni' => $merchantDNI,
+                'merchant_location' => $merchantLocation,
                 'total_visits' => $totalVisits,
                 'pending_visits' => $pendingVisits,
                 'completed_visits' => $completedVisits,
@@ -137,6 +145,35 @@ class AdminController extends Controller
         });
 
         return response()->json($merchantProgress);
+    }
+
+    public function locationsIndex()
+    {
+        return inertia('Admin/UploadData/Locations/Index');
+    }
+    public function getAsignedVisits()
+    {
+        $asignedVisits = MerchantPointOfSale::with(['merchant.user', 'pointOfSale.region', 'pointOfSale.location'])
+            ->orderBy('frequency')
+            ->get()
+            ->map(function ($asignedVisit) {
+                return [
+                    'id' => $asignedVisit->id,
+                    'merchant_id' => $asignedVisit->merchant_id,
+                    'merchant' => $asignedVisit->merchant->user->name,
+                    'merchant_dni' => $asignedVisit->merchant->dni,
+                    'point_of_sale_id' => $asignedVisit->point_of_sale_id,
+                    'pos' => $asignedVisit->pointOfSale->name,
+                    'pos_code' => $asignedVisit->pointOfSale->code,
+                    'location_id' => $asignedVisit->pointOfSale->location_id,
+                    'location' => $asignedVisit->pointOfSale->location->name,
+                    'region_id' => $asignedVisit->pointOfSale->region->id,
+                    'region' => $asignedVisit->pointOfSale->region->name,
+                    'frequency' => $asignedVisit->frequency,
+                ];
+            });
+        
+        return response()->json($asignedVisits);
     }
 
     public function getVisitsFromMerchant($merchant_id, $date)
@@ -255,4 +292,54 @@ class AdminController extends Controller
         return response()->json(['message' => 'Point of Sales uploaded successfully']);
     }
 
+    public function uploadMerchantsPointOfSalesExcel(Request $request)
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx,xls,csv',
+    ]);
+
+    $file = $request->file('file');
+    $data = \Excel::toArray([], $file)[0];
+
+    // Skip the header row
+    foreach (array_slice($data, 1) as $row) {
+        $dni = $row[0];
+        $posCode = $row[1];
+        $frequency = $row[2];
+
+        // Extract merchant ID by DNI
+        $merchant = Merchant::where('dni', $dni)->first();
+        if (!$merchant) {
+            continue;
+        }
+
+        // Extract POS ID by code
+        $pointOfSale = PointOfSale::where('code', $posCode)->first();
+        if (!$pointOfSale) {
+            continue;
+        }
+
+        // Convert frequency to day of the week number
+        $daysOfWeek = [
+            'lunes' => 1,
+            'martes' => 2,
+            'miércoles' => 3,
+            'miercoles' => 3,
+            'jueves' => 4,
+            'viernes' => 5,
+            'sábado' => 6,
+            'sabado' => 6,
+            'domingo' => 7,
+        ];
+        $dayNumber = $daysOfWeek[strtolower($frequency)] ?? null;
+        if (!$dayNumber) {
+            continue;
+        }
+
+        // Add information to MerchantsPointOfSales
+        $merchant->pointsOfSale()->attach($pointOfSale->id, ['frequency' => $dayNumber]);
+    }
+
+    return response()->json(['message' => 'Merchant Point of Sales uploaded successfully']);
+}
 }

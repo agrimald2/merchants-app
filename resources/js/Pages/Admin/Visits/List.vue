@@ -17,28 +17,31 @@
             <div class="bg-white p-4">
                 <div class="filters">
                     <div class="grid grid-cols-3 gap-4 mb-4">
-                        <div class="bg-red-500 text-white rounded-lg p-4 flex flex-col items-center">
-                            <div class="text-2xl font-bold">{{ visits.length }}</div>
+                        <div class="bg-gray-50 text-black rounded-lg p-4 flex flex-col items-center shadow-md">
+                            <i class="fa-solid fa-bullseye text-xl"></i>
                             <div class="text-sm">Objetivo</div>
+                            <div class="text-2xl font-bold">{{ visits.length }}</div>
                         </div>
-                        <div class="bg-green-500 text-white rounded-lg p-4 flex flex-col items-center">
-                            <div class="text-2xl font-bold">{{ done_visits.length }}</div>
+                        <div class="bg-gray-50 text-black rounded-lg p-4 flex flex-col items-center shadow-md">
+                            <i class="fa-regular fa-circle-check text-xl text-green-500"></i>
                             <div class="text-sm">Realizadas</div>
+                            <div class="text-2xl font-bold">{{ done_visits.length }}</div>
                         </div>
-                        <div class="bg-yellow-500 text-white rounded-lg p-4 flex flex-col items-center">
-                            <div class="text-2xl font-bold">{{ Object.keys(pending_visits).length }}</div>
+                        <div class="bg-gray-50 text-black rounded-lg p-4 flex flex-col items-center shadow-md">
+                            <i class="fa-solid fa-stopwatch text-xl text-yellow-500"></i>
                             <div class="text-sm">Pendientes</div>
+                            <div class="text-2xl font-bold">{{ Object.keys(pending_visits).length }}</div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="px-3 pt-6">
-                <p>Visitas Pendientes</p>
+                <p class="text-xl font-semibold text-gray-800">Visitas Pendientes</p>
                 <PendingVisitsComponent v-for="pending_visit in pending_visits" :visit="pending_visit"
                     @scan="toggleQrModal" />
             </div>
             <div class="px-3 pt-6">
-                <p>Visitas Realizadas</p>
+                <p class="text-xl font-semibold text-gray-800">Visitas Realizadas</p>
                 <DoneVisitsComponent v-for="done_visit in done_visits" :visit="done_visit" />
             </div>
         </div>

@@ -2,7 +2,7 @@
     <AdminLayout title="Dashboard">
         <template #header>
             <h2 class="font-semibold text-lg text-white leading-tight text-center">
-                Visitas <span class="ml-2 bg-white-ac text-black px-2 py-1 rounded">35%</span>
+                Visitas <!-- <span class="ml-2 bg-white-ac text-black px-2 py-1 rounded">{{ averageProgress }}%</span>-->
             </h2>
         </template>
         <div class="bg-white p-4 max-w-3xl mx-auto">
@@ -102,6 +102,7 @@ export default {
             selectedLocation: '',
             selectedMerchant: '',
             selectedDate: new Date().toISOString().substr(0, 10),
+            averageProgress: 0,
         };
     },
     mounted() {
@@ -140,6 +141,7 @@ export default {
             try {
                 const response = await axios.get(`/admin/generalVisitProgress/${this.selectedDate}`);
                 this.merchantProgresses = response.data;
+                this.calculateAverageProgress();
             } catch (error) {
                 console.error('Error fetching merchant progresses:', error);
             }
@@ -154,6 +156,7 @@ export default {
                     }
                 });
                 this.merchantProgresses = response.data;
+                this.calculateAverageProgress();
             } catch (error) {
                 console.error('Error filtering data:', error);
             }
@@ -163,6 +166,14 @@ export default {
                 this.filteredLocations = this.locations.filter(location => location.region_id === this.selectedRegion);
             } else {
                 this.filteredLocations = this.locations;
+            }
+        },
+        calculateAverageProgress() {
+            if (this.merchantProgresses.length > 0) {
+                const totalProgress = this.merchantProgresses.reduce((sum, progress) => sum + progress.progress, 0);
+                this.averageProgress = (totalProgress / this.merchantProgresses.length).toFixed(2);
+            } else {
+                this.averageProgress = 0;
             }
         }
     }

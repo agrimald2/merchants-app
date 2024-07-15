@@ -8,9 +8,19 @@
                 </div>
             </div>
             <div class="grid grid-cols-8 w-full py-2">
-                <div class="flex items-center col-span-4">
-                    <i class="fa-solid fa-user mr-1"></i>
-                    <div class="font-bold text-gray-900">{{ merchantProgress.merchant_name }}</div>
+                <div class="flex flex-col col-span-4">
+                    <div class="flex items-center mb-1">
+                        <i class="fa-solid fa-user mr-1"></i>
+                        <div class="font-bold text-gray-900">
+                            {{ merchantProgress.merchant_name }} - {{ merchantProgress.merchant_dni }}
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-map-marker-alt mr-1"></i>
+                        <div class="text-gray-600">
+                            {{ merchantProgress.merchant_location }}
+                        </div>
+                    </div>
                 </div>
                 <div class="flex items-center col-span-2">
                     <div class="flex items-center">

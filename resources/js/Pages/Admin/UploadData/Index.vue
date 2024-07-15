@@ -20,7 +20,7 @@
             <div class="max-w-3xl mx-auto sm:px-4 lg:px-6">
                 <div class="overflow-hidden sm:rounded-lg flex justify-center items-center h-full">
                     <div class="grid grid-cols-1 gap-4 w-full px-4">
-                        <button @click="() => $inertia.get(route('admin.visits'))"
+                        <button @click="() => $inertia.get(route('admin.visitsAsigned'))"
                             class="bg-red-ac text-white font-bold py-3 px-4 rounded-lg w-full">Asignar Visitas</button>
                         <button @click="() => $inertia.get(route('admin.merchants'))"
                             class="bg-red-ac text-white font-bold py-3 px-4 rounded-lg w-full">Mercaderistas</button>

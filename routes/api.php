@@ -28,5 +28,4 @@ Route::get('/subregions', [SubRegionController::class, 'index']);
 Route::get('/locations', [LocationController::class, 'index']);
 
 Route::get('/merchants', [MerchantController::class, 'index']);
-
 Route::get('/pointOfSales', [PointOfSaleController::class, 'index']);

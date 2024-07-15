@@ -12,4 +12,13 @@ class MerchantPointOfSale extends Model
 
     protected $fillable = ['merchant_id', 'point_of_sale_id', 'frequency'];
 
+    public function merchant()
+    {
+        return $this->belongsTo(Merchant::class);
+    }
+
+    public function pointOfSale()
+    {
+        return $this->belongsTo(PointOfSale::class);
+    }
 }

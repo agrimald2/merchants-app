@@ -16,7 +16,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('generate:merchant-visits')->dailyAt('18:00');
+        $schedule->command('generate:merchant-visits')->everyMinute();
     }
 
     /**

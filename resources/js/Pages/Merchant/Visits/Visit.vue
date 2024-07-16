@@ -16,10 +16,10 @@
                 <p class="font-medium">{{ new Date(visit.visit_started_at).toLocaleTimeString() }}</p>
             </div>
             <div class="px-3 pt-6">
-                <h3 class="font-bold subtitles">Subir Fotos</h3>
+                <h3 class="font-bold subtitles">Tomar Fotos</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div v-for="(photo, index) in photos" :key="index" class="relative">
-                        <img :src="photo.url" alt="Uploaded photo" class="w-full h-32 object-cover rounded-lg">
+                        <img :src="photo.url" alt="Captured photo" class="w-full h-32 object-cover rounded-lg">
                         <button @click="removePhoto(index)"
                             class="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full">
                             &times;
@@ -27,9 +27,7 @@
                     </div>
                     <div v-if="photos.length < 4"
                         class="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg h-32">
-                        <input type="file" @change="uploadPhoto" class="absolute opacity-0 w-full cursor-pointer"
-                            style="height: inherit">
-                        <span class="text-gray-500">+</span>
+                        <button @click="capturePhoto" class="text-gray-500">+</button>
                     </div>
                 </div>
             </div>
@@ -87,20 +85,41 @@ export default {
             const seconds = totalSeconds % 60;
             return `${hours}h ${minutes}m ${seconds}s`;
         },
-        uploadPhoto(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                if (this.photos.length < 4) {
-                    this.photos.push({ url: e.target.result, file });
-                } else {
-                    alert('You can upload a maximum of 4 photos.');
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-    },
+        capturePhoto() {
+            const video = document.createElement('video');
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    video.srcObject = stream;
+                    video.play();
+
+                    video.addEventListener('loadeddata', () => {
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const url = canvas.toDataURL('image/png');
+                        if (this.photos.length < 4) {
+                            this.photos.push({ url, file: this.dataURLtoFile(url, 'photo.png') });
+                        } else {
+                            alert('You can upload a maximum of 4 photos.');
+                        }
+                        stream.getTracks().forEach(track => track.stop());
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error accessing camera:', error);
+                });
+        },
+        dataURLtoFile(dataurl, filename) {
+            const arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new File([u8arr], filename, { type: mime });
+        },
         removePhoto(index) {
             this.photos.splice(index, 1);
         },

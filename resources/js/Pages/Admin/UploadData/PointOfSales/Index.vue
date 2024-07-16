@@ -76,8 +76,6 @@
                             <th class="py-3 px-4 text-left">Name</th>
                             <th class="py-3 px-4 text-left">Code</th>
                             <th class="py-3 px-4 text-left">Address</th>
-                            <th class="py-3 px-4 text-left">Route</th>
-                            <th class="py-3 px-4 text-left">Table</th>
                             <th class="py-3 px-4 text-left">Locación</th>
                             <th class="py-3 px-4 text-left">Actions</th>
                         </tr>
@@ -87,8 +85,6 @@
                             <td class="py-3 px-4">{{ merchant.name }}</td>
                             <td class="py-3 px-4">{{ merchant.code }}</td>
                             <td class="py-3 px-4">{{ merchant.address }}</td>
-                            <td class="py-3 px-4">{{ merchant.route }}</td>
-                            <td class="py-3 px-4">{{ merchant.table }}</td>
                             <td class="py-3 px-4">{{ merchant.location.name }}</td>
                             <td class="py-3 px-4 flex space-x-2">
                                 <button @click="viewDetails(merchant)"

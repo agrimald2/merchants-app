@@ -301,6 +301,7 @@ class AdminController extends Controller
     $file = $request->file('file');
     $data = \Excel::toArray([], $file)[0];
 
+    Log::debug($data);
     // Skip the header row
     foreach (array_slice($data, 1) as $row) {
         $dni = $row[0];

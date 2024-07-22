@@ -1,1 +1,0 @@
-import{_ as e}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{o as s,e as c,p as a,q as t,a as d}from"./app-BOXK8myb.js";const _={},r=o=>(a("data-v-c0be4657"),o=o(),t(),o),n={class:"modal"},p=r(()=>d("div",{class:"loader"},null,-1)),i=[p];function l(o,m){return s(),c("div",n,i)}const u=e(_,[["render",l],["__scopeId","data-v-c0be4657"]]);export{u as L};

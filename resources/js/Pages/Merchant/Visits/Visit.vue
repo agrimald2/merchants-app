@@ -27,7 +27,7 @@
                     </div>
                     <div v-if="photos.length < 4"
                         class="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg h-32">
-                        <input type="file" @change="uploadPhoto" class="absolute opacity-0 w-full cursor-pointer"
+                        <input type="file" @change="uploadPhoto" accept="image/*" capture="camera" class="absolute opacity-0 w-full cursor-pointer"
                             style="height: inherit">
                         <span class="text-gray-500">+</span>
                     </div>

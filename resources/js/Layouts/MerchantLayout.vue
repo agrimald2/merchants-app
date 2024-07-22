@@ -31,7 +31,7 @@ const logout = () => {
                         <div class="flex items-center">
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
-                                <Link :href="route('dashboard')">
+                                <Link :href="route('merchant.home')">
                                 <img src="https://companieslogo.com/img/orig/AC.MX_BIG.D-d3508e09.png?t=1640335174"
                                     alt="" class="h-8 w-auto">
                                 </Link>
@@ -44,8 +44,8 @@ const logout = () => {
                             </div>
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Dashboard
+                                <NavLink :href="route('merchant.home')" :active="route().current('merchant.home')">
+                                    Home 
                                 </NavLink>
                             </div>
                         </div>
@@ -103,8 +103,8 @@ const logout = () => {
                 <div :class="{ 'block': showingNavigationDropdown, 'hidden': !showingNavigationDropdown }"
                     class="sm:hidden bg-white-ac">
                     <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            <span class="font-bold">Dashboard</span>
+                        <ResponsiveNavLink :href="route('merchant.home')" :active="route().current('merchant.home')">
+                            <span class="font-bold">Home</span>
                         </ResponsiveNavLink>
                     </div>
 

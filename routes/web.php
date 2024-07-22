@@ -50,6 +50,7 @@ Route::middleware([
         Route::post('/merchants/upload', [AdminController::class, 'uploadMerchantsExcel'])->name('admin.upload.merchants');
         Route::post('/pointOfSales/upload', [AdminController::class, 'uploadPointOfSalesExcel'])->name('admin.upload.pointOfSales');
         Route::post('/merchants-pointOfSales/upload', [AdminController::class, 'uploadMerchantsPointOfSalesExcel'])->name('admin.upload.merchants-pointOfSales');
+        Route::post('/assignMerchantVisitManual', [AdminController::class, 'asignMerchantVisitManual'])->name('admin.assignMerchantVisitManual');
     });
 
     Route::prefix('merchant')->group(function () {

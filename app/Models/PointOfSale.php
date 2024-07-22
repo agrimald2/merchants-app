@@ -10,7 +10,7 @@ class PointOfSale extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['code', 'name', 'address', 'route', 'table', 'location_id'];
+    protected $fillable = ['code', 'name', 'address', 'route', 'table', 'location_id', 'latitude', 'longitude'];
 
     /**
      * Get the location that owns the point of sale.

@@ -2,7 +2,8 @@
     <AdminLayout title="Dashboard">
         <template #header>
             <h2 class="font-semibold text-lg text-white leading-tight text-center">
-                Visitas <!-- <span class="ml-2 bg-white-ac text-black px-2 py-1 rounded">{{ averageProgress }}%</span>-->
+                Visitas
+                <!-- <span class="ml-2 bg-white-ac text-black px-2 py-1 rounded">{{ averageProgress }}%</span>-->
             </h2>
         </template>
         <div class="bg-white p-4 max-w-3xl mx-auto">
@@ -10,8 +11,7 @@
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
                         <label for="region" class="block text-sm font-medium text-gray-700">Región</label>
-                        <select id="region" v-model="selectedRegion"
-                            @change="filterData; filterLocations"
+                        <select id="region" v-model="selectedRegion" @change="filterData; filterLocations"
                             class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                             <option value="">Todos</option>
                             <option v-for="region in regions" :key="region.id" :value="region.id">{{ region.name }}
@@ -20,8 +20,7 @@
                     </div>
                     <div>
                         <label for="location" class="block text-sm font-medium text-gray-700">Locación</label>
-                        <select id="location" v-model="selectedLocation"
-                            @change="filterData"
+                        <select id="location" v-model="selectedLocation" @change="filterData"
                             class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                             <option value="">Todos</option>
                             <option v-for="location in filteredLocations" :key="location.id" :value="location.id">{{
@@ -33,8 +32,7 @@
                 <div class="mb-4">
                     <label for="merchant" class="block text-sm font-medium text-gray-700">Seleccionar
                         Mercaderista</label>
-                    <select id="merchant" v-model="selectedMerchant"
-                        @change="filterData"
+                    <select id="merchant" v-model="selectedMerchant" @change="filterData"
                         class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                         <option value="">Todos</option>
                         <option v-for="merchant in merchants" :key="merchant.id" :value="merchant.id">{{ merchant.name
@@ -50,18 +48,23 @@
                             <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 7V3m8 4V3m-4 14h.01M12 21v-5m0 0H9m3 0h3m-3 0V3m0 16h.01M8 7V3m8 4V3m-4 14h.01M12 21v-5m0 0H9m3 0h3m-3 0V3m0 16h.01" />
+                                    d="M8 7V3m8 4V3m-4 14h.01M12 21v-5m0 0H9m3 0h3m-3 0V3m0 16h.01M8 7V3m8 4V3m-4 14h.01" />
                             </svg>
                         </div>
-                        <input type="date" id="date" v-model="selectedDate"
-                            @change="filterData"
+                        <input type="date" id="date" v-model="selectedDate" @change="filterData"
                             class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                             placeholder="Elige una fecha" />
                     </div>
                 </div>
+                <div class="mt-4 flex justify-end">
+                    <button @click="addNewItem" class="bg-green-500 text-white px-2 py-1 rounded-full">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
             </div>
         </div>
         <div class="px-3 pt-2 max-w-3xl mx-auto">
+            <AddManualVisit :showModal="showModal" @close="showModal = false" @save="handleSaveVisit" />
             <div
                 class="bg-white pt-2 pb-2 px-3 rounded-lg shadow-md flex items-center justify-between space-x-4 my-3 w-full">
                 <div class="grid grid-cols-8 w-full py-1">
@@ -77,8 +80,7 @@
                 </div>
             </div>
             <MerchantProgressComponent v-for="merchantProgress in merchantProgresses"
-                :key="merchantProgress.merchant_id"
-                :merchantProgress="merchantProgress" :date="selectedDate"/>
+                :key="merchantProgress.merchant_id" :merchantProgress="merchantProgress" :date="selectedDate" />
         </div>
     </AdminLayout>
 </template>
@@ -86,10 +88,12 @@
 <script>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import MerchantProgressComponent from './MerchantProgressComponent.vue'
+import AddManualVisit from './AddManualVisit.vue';
+
 import axios from 'axios';
 
 export default {
-    components: { AdminLayout, MerchantProgressComponent },
+    components: { AdminLayout, MerchantProgressComponent, AddManualVisit },
     props: ['visits'],
     data() {
         return {
@@ -103,6 +107,7 @@ export default {
             selectedMerchant: '',
             selectedDate: new Date().toISOString().substr(0, 10),
             averageProgress: 0,
+            showModal: false,
         };
     },
     mounted() {
@@ -174,6 +179,18 @@ export default {
                 this.averageProgress = (totalProgress / this.merchantProgresses.length).toFixed(2);
             } else {
                 this.averageProgress = 0;
+            }
+        },
+        addNewItem() {
+            this.showModal = true;
+        },
+        async handleSaveVisit(visitData) {
+            try {
+                await axios.post('/admin/assignMerchantVisitManual', visitData);
+                this.showModal = false;
+                this.getMerchantProgresses(); // Refresh the data
+            } catch (error) {
+                console.error('Error saving visit:', error);
             }
         }
     }

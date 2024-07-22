@@ -1,10 +1,15 @@
 <script setup>
-import AdminLayout from '@/Layouts/AdminLayout.vue';
+import MerchantLayout from '@/Layouts/MerchantLayout.vue';
 </script>
 
 <template>
-    <AdminLayout title="Dashboard">
+    <MerchantLayout title="Dashboard">
         <template #header>
+            <h2 class="font-semibold text-lg text-white leading-tight text-center mb-2">
+                <span class="bg-gray-100 text-black p-1 text-center rounded">
+                    {{ averageProgress }}%
+                </span> 
+            </h2>
             <h2 class="font-semibold text-lg text-white leading-tight text-center ">
                 {{ new Date().toLocaleDateString('es-ES', { weekday: 'long', month: 'long', day: 'numeric' }) }}
             </h2>
@@ -47,7 +52,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
         </div>
 
         <ScanQR v-if="isQRModalVisible" @close="toggleQrModal" />
-    </AdminLayout>
+    </MerchantLayout>
 </template>
 <script>
 import axios from 'axios';
@@ -68,6 +73,10 @@ export default {
     computed: {
         totalVisits() {
             return this.pendingVisits.length + this.doneVisits.length;
+        },
+        averageProgress() {
+            if (this.totalVisits === 0) return 0;
+            return ((this.doneVisits.length / this.totalVisits) * 100).toFixed(0);
         }
     },
     created() {

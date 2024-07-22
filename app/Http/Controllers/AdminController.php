@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use App\Models\Merchant;
 use App\Models\PointOfSale;
 use App\Models\MerchantPointOfSale;
+use App\Models\MerchantVisit;
 use App\Models\User;
 use App\Models\Location;
 use Maatwebsite\Excel\Facades\Excel;
@@ -215,6 +216,7 @@ class AdminController extends Controller
         $data = \Excel::toArray([], $file)[0];
 
         $data = array_slice($data, 1);
+        $errors = [];
 
         foreach ($data as $row) {
             $name = $row[0];
@@ -223,15 +225,25 @@ class AdminController extends Controller
             $locationName = $row[3];
 
             // Check if merchant already exists
-            if (Merchant::where('dni', $dni)->exists()) {
+            $merchant = Merchant::where('dni', $dni)->first();
+            if ($merchant) {
+                // Update existing merchant except for location
+                $merchant->update([
+                    'user_id' => $merchant->user_id,
+                    'dni' => $dni,
+                    'phone' => $phone,
+                ]);
                 continue;
             }
 
-            // Find or create location
-            $location = Location::firstOrCreate(
-                ['name' => $locationName],
-                ['name' => $locationName]
-            );
+            // Find location
+            $location = Location::firstWhere('name', $locationName);
+
+            // If location creation failed, log the error and continue
+            if (!$location) {
+                $errors[] = ['dni' => $dni, 'name' => $name, 'text' => 'La locación: '.$locationName.', no existe'];
+                continue;
+            }
 
             // Create user
             $user = User::create([
@@ -250,7 +262,10 @@ class AdminController extends Controller
             ]);
         }
 
-        return response()->json(['message' => 'Merchants uploaded successfully']);
+        return response()->json([
+            'message' => 'Merchants uploaded successfully',
+            'errors' => $errors
+        ]);
     }
 
     public function uploadPointOfSalesExcel(Request $request)
@@ -262,23 +277,38 @@ class AdminController extends Controller
         $file = $request->file('file');
         $data = \Excel::toArray([], $file)[0];
 
+        $errors = [];
+
         // Skip the header row
         foreach (array_slice($data, 1) as $row) {
             $code = $row[0];
             $name = $row[1];
             $address = $row[2];
             $locationName = $row[3];
+            $latitude = $row[4];
+            $longitude = $row[5];
 
             // Check if point of sale already exists
-            if (PointOfSale::where('code', $code)->exists()) {
+            $pointOfSale = PointOfSale::where('code', $code)->first();
+            if ($pointOfSale) {
+                // Update existing point of sale
+                $pointOfSale->update([
+                    'name' => $name,
+                    'address' => $address,
+                    'latitude' => $latitude,
+                    'longitude' => $longitude
+                ]);
                 continue;
             }
 
-            // Find or create location
-            $location = Location::firstOrCreate(
-                ['name' => $locationName],
-                ['name' => $locationName]
-            );
+            // Find location
+            $location = Location::firstWhere('name', $locationName);
+
+            // If location creation failed, log the error and continue
+            if (!$location) {
+                $errors[] = ['code' => $code, 'name' => $name, 'text' => 'La locación: '.$locationName.', no existe'];
+                continue;
+            }
 
             // Create point of sale
             PointOfSale::create([
@@ -286,61 +316,87 @@ class AdminController extends Controller
                 'name' => $name,
                 'address' => $address,
                 'location_id' => $location->id,
+                'latitude' => $latitude,
+                'longitude' => $longitude
             ]);
         }
 
-        return response()->json(['message' => 'Point of Sales uploaded successfully']);
+        return response()->json([
+            'message' => 'Point of Sales uploaded successfully',
+            'errors' => $errors
+        ]);
     }
 
     public function uploadMerchantsPointOfSalesExcel(Request $request)
-{
-    $request->validate([
-        'file' => 'required|mimes:xlsx,xls,csv',
-    ]);
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv',
+        ]);
 
-    $file = $request->file('file');
-    $data = \Excel::toArray([], $file)[0];
+        $file = $request->file('file');
+        $data = \Excel::toArray([], $file)[0];
 
-    Log::debug($data);
-    // Skip the header row
-    foreach (array_slice($data, 1) as $row) {
-        $dni = $row[0];
-        $posCode = $row[1];
-        $frequency = $row[2];
+        Log::debug($data);
+        // Skip the header row
+        foreach (array_slice($data, 1) as $row) {
+            $dni = $row[0];
+            $posCode = $row[1];
+            $frequency = $row[2];
 
-        // Extract merchant ID by DNI
-        $merchant = Merchant::where('dni', $dni)->first();
-        if (!$merchant) {
-            continue;
+            // Extract merchant ID by DNI
+            $merchant = Merchant::where('dni', $dni)->first();
+            if (!$merchant) {
+                continue;
+            }
+
+            // Extract POS ID by code
+            $pointOfSale = PointOfSale::where('code', $posCode)->first();
+            if (!$pointOfSale) {
+                continue;
+            }
+
+            // Convert frequency to day of the week number
+            $daysOfWeek = [
+                'lunes' => 1,
+                'martes' => 2,
+                'miércoles' => 3,
+                'miercoles' => 3,
+                'jueves' => 4,
+                'viernes' => 5,
+                'sábado' => 6,
+                'sabado' => 6,
+                'domingo' => 7,
+            ];
+            $dayNumber = $daysOfWeek[strtolower($frequency)] ?? null;
+            if (!$dayNumber) {
+                continue;
+            }
+
+            // Add information to MerchantsPointOfSales
+            $merchant->pointsOfSale()->attach($pointOfSale->id, ['frequency' => $dayNumber]);
         }
 
-        // Extract POS ID by code
-        $pointOfSale = PointOfSale::where('code', $posCode)->first();
-        if (!$pointOfSale) {
-            continue;
-        }
-
-        // Convert frequency to day of the week number
-        $daysOfWeek = [
-            'lunes' => 1,
-            'martes' => 2,
-            'miércoles' => 3,
-            'miercoles' => 3,
-            'jueves' => 4,
-            'viernes' => 5,
-            'sábado' => 6,
-            'sabado' => 6,
-            'domingo' => 7,
-        ];
-        $dayNumber = $daysOfWeek[strtolower($frequency)] ?? null;
-        if (!$dayNumber) {
-            continue;
-        }
-
-        // Add information to MerchantsPointOfSales
-        $merchant->pointsOfSale()->attach($pointOfSale->id, ['frequency' => $dayNumber]);
+        return response()->json(['message' => 'Merchant Point of Sales uploaded successfully']);
     }
 
-    return response()->json(['message' => 'Merchant Point of Sales uploaded successfully']);
-}
+    public function asignMerchantVisitManual(Request $request)
+    {
+        $request->validate([
+            'merchant_id' => 'required|exists:merchants,id',
+            'pos_id' => 'required|exists:point_of_sales,id',
+            'date' => 'required|date',
+        ]);
+
+        $merchantId = $request->input('merchant_id');
+        $posId = $request->input('pos_id');
+        $date = $request->input('date');
+
+        $merchantVisit = new MerchantVisit();
+        $merchantVisit->merchant_id = $merchantId;
+        $merchantVisit->point_of_sale_id = $posId;
+        $merchantVisit->programmed_visit_date = $date;
+        $merchantVisit->save();
+
+        return response()->json(['message' => 'Merchant visit assigned successfully']);
+    }
 }

@@ -26,8 +26,6 @@
                             class="bg-red-ac text-white font-bold py-3 px-4 rounded-lg w-full">Mercaderistas</button>
                         <button @click="() => $inertia.get(route('admin.pointOfSales'))"
                             class="bg-red-ac text-white font-bold py-3 px-4 rounded-lg w-full">Puntos de Venta</button>
-                        <button @click="() => $inertia.get(route('admin.uploadData'))"
-                            class="bg-red-ac text-white font-bold py-3 px-4 rounded-lg w-full">Locación</button>
                     </div>
                 </div>
             </div>

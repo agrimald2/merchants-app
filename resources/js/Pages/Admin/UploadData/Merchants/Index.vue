@@ -78,7 +78,7 @@
                             <th class="py-3 px-4 text-left">DNI</th>
                             <th class="py-3 px-4 text-left">Celular</th>
                             <th class="py-3 px-4 text-left">Locación</th>
-                            <th class="py-3 px-4 text-left">Actions</th>
+                            <th class="py-3 px-4 text-left">On/Off</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -88,14 +88,13 @@
                             <td class="py-3 px-4">{{ merchant.phone }}</td>
                             <td class="py-3 px-4">{{ merchant.location.name }}</td>
                             <td class="py-3 px-4 flex space-x-2">
-                                <button @click="viewDetails(merchant)"
-                                    class="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition">
-                                    <i class="fa-solid fa-circle-info"></i>
-                                </button>
-                                <button @click="confirmRemove(merchant)"
-                                    class="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition">
-                                    <i class="fa-solid fa-circle-minus"></i>
-                                </button>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" v-model="merchant.isActive" @change="toggleMerchantStatus(merchant)" class="sr-only">
+                                    <span class="relative">
+                                        <span class="block w-10 h-6 bg-gray-300 rounded-full shadow-inner"></span>
+                                        <span :class="{'translate-x-4': merchant.isActive, 'translate-x-0': !merchant.isActive}" class="absolute block w-4 h-4 mt-1 ml-1 transform bg-white rounded-full shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out"></span>
+                                    </span>
+                                </label>
                             </td>
                         </tr>
                     </tbody>
@@ -124,6 +123,7 @@
             </div>
         </div>
         <AddMerchantModal :locations="locations" @closeAddMerchantModal="showAddModal = false" v-if="showAddModal" />
+        <LoaderModal v-if="loading" />
     </AdminLayout>
 </template>
 
@@ -132,6 +132,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import AddMerchantModal from './AddMerchantModal.vue';
 import MerchantDetailsModal from './MerchantDetailsModal.vue';
 import RemoveMerchantModal from './RemoveMerchantModal.vue';
+import LoaderModal from '@/Components/LoaderModal.vue';
 
 import axios from 'axios';
 
@@ -140,7 +141,8 @@ export default {
         AdminLayout,
         AddMerchantModal,
         MerchantDetailsModal,
-        RemoveMerchantModal
+        RemoveMerchantModal,
+        LoaderModal
     },
     data() {
         return {
@@ -160,7 +162,8 @@ export default {
             locations: [],
             selectedRegion: '',
             selectedLocation: '',
-            searchQuery: ''
+            searchQuery: '',
+            loading: false
         };
     },
     mounted() {
@@ -173,6 +176,7 @@ export default {
             this.$inertia.get(route('admin.uploadData'));
         },
         fetchMerchants() {
+            this.loading = true;
             axios.get('/admin/merchants/all')
                 .then(response => {
                     this.merchants = response.data;
@@ -180,6 +184,9 @@ export default {
                 })
                 .catch(error => {
                     console.error('Error fetching merchants:', error);
+                })
+                .finally(() => {
+                    this.loading = false;
                 });
         },
         viewDetails(merchant) {
@@ -187,19 +194,25 @@ export default {
             this.showDetailsModal = true;
         },
         async getRegions() {
+            this.loading = true;
             try {
                 const response = await axios.get('/api/regions');
                 this.regions = response.data;
             } catch (error) {
                 console.error('Error fetching regions:', error);
+            } finally {
+                this.loading = false;
             }
         },
         async getLocations() {
+            this.loading = true;
             try {
                 const response = await axios.get('/api/locations');
                 this.locations = response.data;
             } catch (error) {
                 console.error('Error fetching locations:', error);
+            } finally {
+                this.loading = false;
             }
         },
         filterMerchants() {
@@ -219,6 +232,7 @@ export default {
                 const formData = new FormData();
                 formData.append('file', file);
 
+                this.loading = true;
                 axios.post('/admin/merchants/upload', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
@@ -226,11 +240,19 @@ export default {
                 })
                 .then(response => {
                     this.fetchMerchants();
-                    alert('Archivo subido exitosamente');
+                    if (response.data.errors && response.data.errors.length > 0) {
+                        let errorMessages = response.data.errors.map(error => `DNI: ${error.dni}, Nombre: ${error.name}, Mensaje: ${error.text}`).join('\n');
+                        alert(`Errores al subir el archivo:\n${errorMessages}`);
+                    } else {
+                        alert('Archivo subido exitosamente');
+                    }
                 })
                 .catch(error => {
                     console.error('Error uploading file:', error);
                     alert('Error al subir el archivo');
+                })
+                .finally(() => {
+                    this.loading = false;
                 });
             }
         },

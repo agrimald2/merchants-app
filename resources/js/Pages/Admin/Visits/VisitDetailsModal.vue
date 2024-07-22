@@ -39,7 +39,8 @@
                     <h3 class="font-semibold text-gray-700">Ubicación - {{visit.point_of_sale.address}}</h3>
                     <div class="flex items-center space-x-4 mt-2">
                         <button :class="{'text-red-500 border-b-2 border-red-500': isStartSelected, 'text-gray-500': !isStartSelected}" @click="selectStart" class="pb-1 focus:outline-none">INICIO</button>
-                        <button :class="{'text-red-500 border-b-2 border-red-500': !isStartSelected, 'text-gray-500': isStartSelected}" @click="selectEnd" class="pb-1 focus:outline-none">FINAL</button>
+                        <button :class="{'text-red-500 border-b-2 border-red-500': isEndSelected, 'text-gray-500': !isEndSelected}" @click="selectEnd" class="pb-1 focus:outline-none">FINAL</button>
+                        <button :class="{'text-red-500 border-b-2 border-red-500': isPosSelected, 'text-gray-500': !isPosSelected}" @click="selectPos" class="pb-1 focus:outline-none">POS</button>
                     </div>
                     <div class="mt-2">
                         <iframe
@@ -76,13 +77,17 @@ export default {
     data() {
         return {
             isDetailsSelected: true,
-            isStartSelected: true
+            isStartSelected: true,
+            isEndSelected: false,
+            isPosSelected: false
         };
     },
     computed: {
         mapSrc() {
             if (this.isStartSelected) {
                 return `https://www.google.com/maps/embed/v1/place?key=AIzaSyD838-bKnRCBtmc2HgdkxH-GvykXOhUKWI&q=${this.visit.start_latitude},${this.visit.start_longitude}`;
+            } else if (this.isPosSelected) {
+                return `https://www.google.com/maps/embed/v1/place?key=AIzaSyD838-bKnRCBtmc2HgdkxH-GvykXOhUKWI&q=${this.visit.point_of_sale.latitude},${this.visit.point_of_sale.longitude}`;
             } else {
                 return `https://www.google.com/maps/embed/v1/place?key=AIzaSyD838-bKnRCBtmc2HgdkxH-GvykXOhUKWI&q=${this.visit.end_latitude},${this.visit.end_longitude}`;
             }
@@ -103,9 +108,18 @@ export default {
         },
         selectStart() {
             this.isStartSelected = true;
+            this.isEndSelected = false;
+            this.isPosSelected = false;
         },
         selectEnd() {
             this.isStartSelected = false;
+            this.isEndSelected = true;
+            this.isPosSelected = false;
+        },
+        selectPos() {
+            this.isStartSelected = false;
+            this.isEndSelected = false;
+            this.isPosSelected = true;
         },
         calculateTotalTime(start, end) {
             const startTime = new Date(start);

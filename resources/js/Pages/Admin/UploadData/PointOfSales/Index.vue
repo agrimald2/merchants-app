@@ -13,7 +13,7 @@
             </div>
         </template>
 
-        <div class="max-w-3xl mx-auto p-4">
+        <div class="max-w-4xl mx-auto p-4">
             <div class="bg-white p-4 mb-2">
                 <div class="filters">
                     <div class="grid grid-cols-2 gap-4 mb-4">
@@ -77,7 +77,7 @@
                             <th class="py-3 px-4 text-left">Code</th>
                             <th class="py-3 px-4 text-left">Address</th>
                             <th class="py-3 px-4 text-left">Locación</th>
-                            <th class="py-3 px-4 text-left">Actions</th>
+                            <th class="py-3 px-4 text-left">On/Off</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -86,15 +86,14 @@
                             <td class="py-3 px-4">{{ merchant.code }}</td>
                             <td class="py-3 px-4">{{ merchant.address }}</td>
                             <td class="py-3 px-4">{{ merchant.location.name }}</td>
-                            <td class="py-3 px-4 flex space-x-2">
-                                <button @click="viewDetails(merchant)"
-                                    class="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition">
-                                    <i class="fa-solid fa-circle-info"></i>
-                                </button>
-                                <button @click="confirmRemove(merchant)"
-                                    class="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition">
-                                    <i class="fa-solid fa-circle-minus"></i>
-                                </button>
+                            <td class="py-3 px-4">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" v-model="merchant.isActive" @change="toggleStatusPOS(merchant)" class="sr-only">
+                                    <span class="relative">
+                                        <span class="block w-10 h-6 bg-gray-300 rounded-full shadow-inner"></span>
+                                        <span :class="{'translate-x-4': merchant.isActive, 'translate-x-0': !merchant.isActive}" class="absolute block w-4 h-4 mt-1 ml-1 transform bg-white rounded-full shadow inset-y-0 left-0 transition-transform duration-200 ease-in-out"></span>
+                                    </span>
+                                </label>
                             </td>
                         </tr>
                     </tbody>
@@ -122,24 +121,22 @@
                 </div>
             </div>
         </div>
-        <AddMerchantModal :locations="locations" @closeAddMerchantModal="showAddModal = false" v-if="showAddModal" />
+        <LoadingModal v-if="loading" />
     </AdminLayout>
 </template>
 
 <script>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import AddMerchantModal from './AddMerchantModal.vue';
-import MerchantDetailsModal from './MerchantDetailsModal.vue';
 import RemoveMerchantModal from './RemoveMerchantModal.vue';
+import LoadingModal from '@/Components/LoaderModal.vue'
 
 import axios from 'axios';
 
 export default {
     components: {
         AdminLayout,
-        AddMerchantModal,
-        MerchantDetailsModal,
-        RemoveMerchantModal
+        RemoveMerchantModal,
+        LoadingModal
     },
     data() {
         return {
@@ -148,6 +145,7 @@ export default {
             showAddModal: false,
             showDetailsModal: false,
             showRemoveModal: false,
+            loading: false,
             newMerchant: {
                 name: '',
                 code: '',
@@ -172,34 +170,42 @@ export default {
         goBack() {
             this.$inertia.get(route('admin.uploadData'));
         },
-        fetchMerchants() {
-            axios.get('/admin/pointOfSales/all')
-                .then(response => {
-                    this.merchants = response.data;
-                    this.filterMerchants();
-                })
-                .catch(error => {
-                    console.error('Error fetching merchants:', error);
-                });
+        async fetchMerchants() {
+            this.loading = true;
+            try {
+                const response = await axios.get('/admin/pointOfSales/all');
+                this.merchants = response.data;
+                this.filterMerchants();
+            } catch (error) {
+                console.error('Error fetching merchants:', error);
+            } finally {
+                this.loading = false;
+            }
         },
         viewDetails(merchant) {
             this.selectedMerchant = merchant;
             this.showDetailsModal = true;
         },
         async getRegions() {
+            this.loading = true;
             try {
                 const response = await axios.get('/api/regions');
                 this.regions = response.data;
             } catch (error) {
                 console.error('Error fetching regions:', error);
+            } finally {
+                this.loading = false;
             }
         },
         async getLocations() {
+            this.loading = true;
             try {
                 const response = await axios.get('/api/locations');
                 this.locations = response.data;
             } catch (error) {
                 console.error('Error fetching locations:', error);
+            } finally {
+                this.loading = false;
             }
         },
         filterMerchants() {
@@ -213,25 +219,32 @@ export default {
         triggerFileInput() {
             this.$refs.fileInput.click();
         },
-        handleFileUpload(event) {
+        async handleFileUpload(event) {
             const file = event.target.files[0];
             if (file) {
                 const formData = new FormData();
                 formData.append('file', file);
 
-                axios.post('/admin/pointOfSales/upload', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                })
-                .then(response => {
+                this.loading = true;
+                try {
+                    const response = await axios.post('/admin/pointOfSales/upload', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
                     this.fetchMerchants();
-                    alert('Archivo subido exitosamente');
-                })
-                .catch(error => {
+                    if (response.data.errors && response.data.errors.length > 0) {
+                        let errorMessages = response.data.errors.map(error => `Código: ${error.code}, Nombre: ${error.name}, Mensaje: ${error.text}`).join('\n');
+                        alert(`Errores al subir el archivo:\n${errorMessages}`);
+                    } else {
+                        alert('Archivo subido exitosamente');
+                    }
+                } catch (error) {
                     console.error('Error uploading file:', error);
                     alert('Error al subir el archivo');
-                });
+                } finally {
+                    this.loading = false;
+                }
             }
         },
         exportToExcel() {

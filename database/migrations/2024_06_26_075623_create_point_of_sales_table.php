@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->string('name');
             $table->string('address');
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
             $table->string('route')->nullable();
             $table->string('table')->nullable();
             $table->unsignedBigInteger('location_id');

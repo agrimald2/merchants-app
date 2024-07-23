@@ -49,20 +49,23 @@
                     Visita</button>
             </div>
         </div>
+        <LoaderModal v-if="isLoading" />
     </AdminLayout>
 </template>
 <script>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import LoaderModal from '@/Components/LoaderModal.vue';
 import axios from 'axios';
 export default {
     props: ['visit'],
-    components: { AdminLayout },
+    components: { AdminLayout, LoaderModal },
     data() {
         return {
             time_passed: 0,
             intervalId: null,
             photos: [],
-            description: ''
+            description: '',
+            isLoading: false
         };
     },
     created() {
@@ -109,6 +112,7 @@ export default {
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const { latitude, longitude } = position.coords;
                 try {
+                    this.isLoading = true;
                     const formData = new FormData();
                     formData.append('visit_id', this.visit.id);
                     formData.append('end_latitude', latitude);
@@ -127,6 +131,8 @@ export default {
                     window.location.href = route('merchant.home');
                 } catch (error) {
                     console.error('Error ending visit:', error);
+                } finally {
+                    this.isLoading = false;
                 }
             }, (error) => {
                 console.error('Error getting location:', error);

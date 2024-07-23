@@ -140,7 +140,7 @@ export default {
             };
             try {
                 await axios.post('/admin/assignMerchantVisitManual', visitData);
-                this.$emit('save', visitData);
+                //this.$emit('save', visitData);
                 this.closeModal();
             } catch (error) {
                 console.error('Error saving visit:', error);

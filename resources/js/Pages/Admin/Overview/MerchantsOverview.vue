@@ -8,16 +8,7 @@
         </template>
         <div class="bg-white p-4 max-w-3xl mx-auto">
             <div class="filters">
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="region" class="block text-sm font-medium text-gray-700">Región</label>
-                        <select id="region" v-model="selectedRegion" @change="filterData; filterLocations"
-                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                            <option value="">Todos</option>
-                            <option v-for="region in regions" :key="region.id" :value="region.id">{{ region.name }}
-                            </option>
-                        </select>
-                    </div>
+                <div class="grid grid-cols-1 gap-4 mb-4">
                     <div>
                         <label for="location" class="block text-sm font-medium text-gray-700">Locación</label>
                         <select id="location" v-model="selectedLocation" @change="filterData"

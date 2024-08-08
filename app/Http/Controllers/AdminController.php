@@ -19,7 +19,7 @@ class AdminController extends Controller
 {
     public function dashboard()
     {
-        if (auth()->user()->role === 'admin') {
+        if (auth()->user()->role_id === 1) {
             return Inertia::render('Admin/Home');
         } else {
             return redirect()->route('merchant.login');
@@ -119,17 +119,31 @@ class AdminController extends Controller
     public function visitsAsignedIndex(){
         return inertia('Admin/UploadData/Asignation/Index');
     }
-    public function getGeneralVisitProgress($date)
+    public function getGeneralVisitProgress($date, Request $request)
     {
-        Log::debug("FECHA:");
-        Log::debug($date);
         // Validate the date format
         $validatedDate = Carbon::parse($date)->toDateString();
 
         // Get all merchants with visits scheduled for the given date
-        $merchants = Merchant::with('location')->whereHas('visits', function ($query) use ($validatedDate) {
-            $query->whereDate('programmed_visit_date', $validatedDate);
-        })->get();
+        $merchants = Merchant::with('location')
+            ->whereHas('visits', function ($query) use ($validatedDate, $request) {
+                $query->whereDate('programmed_visit_date', $validatedDate);
+
+                if ($request->has('region_id') && $request->region_id) {
+                    $query->whereHas('location.sub_region.region', function ($query) use ($request) {
+                        $query->where('id', $request->region_id);
+                    });
+                }
+
+                if ($request->has('location_id') && $request->location_id) {
+                    $query->where('location_id', $request->location_id);
+                }
+
+                if ($request->has('merchant_id') && $request->merchant_id) {
+                    $query->where('merchant_id', $request->merchant_id);
+                }
+            })
+            ->get();
 
         // Prepare the response data
         $merchantProgress = $merchants->map(function ($merchant) use ($validatedDate) {
@@ -141,7 +155,7 @@ class AdminController extends Controller
             $merchantName = $merchant->user->name;
             $merchantDNI = $merchant->dni;
             $merchantLocation = $merchant->location->name;
-            
+
             return [
                 'merchant_id' => $merchant->id,
                 'merchant_name' => $merchantName,

@@ -11,11 +11,10 @@
                 <div class="grid grid-cols-1 gap-4 mb-4">
                     <div>
                         <label for="location" class="block text-sm font-medium text-gray-700">Locación</label>
-                        <select id="location" v-model="selectedLocation" @change="filterData"
+                        <select id="location" v-model="selectedLocation" @change="filterLocations"
                             class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                             <option value="">Todos</option>
-                            <option v-for="location in filteredLocations" :key="location.id" :value="location.id">{{
-                            location.name }}
+                            <option v-for="location in filteredLocations" :key="location.id" :value="location.id">{{ location.name }}
                             </option>
                         </select>
                     </div>
@@ -26,8 +25,7 @@
                     <select id="merchant" v-model="selectedMerchant" @change="filterData"
                         class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                         <option value="">Todos</option>
-                        <option v-for="merchant in merchants" :key="merchant.id" :value="merchant.id">{{ merchant.name
-                            }}
+                        <option v-for="merchant in filteredMerchants" :key="merchant.id" :value="merchant.id">{{ merchant.name}}
                         </option>
                     </select>
                 </div>
@@ -92,6 +90,7 @@ export default {
             locations: [],
             filteredLocations: [],
             merchants: [],
+            filteredMerchants: [],
             merchantProgresses: [],
             selectedRegion: '',
             selectedLocation: '',
@@ -129,6 +128,7 @@ export default {
             try {
                 const response = await axios.get('/admin/merchants/all');
                 this.merchants = response.data;
+                this.filteredMerchants = this.merchants;
             } catch (error) {
                 console.error('Error fetching merchants:', error);
             }
@@ -143,6 +143,8 @@ export default {
             }
         },
         async filterData() {
+            console.log("Hola");
+            console.log(this.selectedMerchant);
             try {
                 const response = await axios.get(`/admin/generalVisitProgress/${this.selectedDate}`, {
                     params: {
@@ -163,6 +165,15 @@ export default {
             } else {
                 this.filteredLocations = this.locations;
             }
+            this.filterMerchants();
+        },
+        filterMerchants() {
+            if (this.selectedLocation) {
+                this.filteredMerchants = this.merchants.filter(merchant => merchant.location.id === this.selectedLocation);
+            } else {
+                this.filteredMerchants = this.merchants;
+            }
+            this.filterData();
         },
         calculateAverageProgress() {
             if (this.merchantProgresses.length > 0) {

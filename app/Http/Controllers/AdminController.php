@@ -17,6 +17,14 @@ use Carbon\Carbon;
 
 class AdminController extends Controller
 {
+    public function dashboard()
+    {
+        if (auth()->user()->role === 'admin') {
+            return Inertia::render('Admin/Home');
+        } else {
+            return redirect()->route('merchant.login');
+        }
+    }
     public function overviewMerchants()
     {
         return inertia('Admin/Overview/MerchantsOverview', [

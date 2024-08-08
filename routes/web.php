@@ -26,9 +26,7 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Admin/Home');
-    })->name('dashboard');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
     Route::prefix('admin')->group(function () {
         Route::get('/uploadData', [AdminController::class, 'uploadDataIndex'])->name('admin.uploadData');

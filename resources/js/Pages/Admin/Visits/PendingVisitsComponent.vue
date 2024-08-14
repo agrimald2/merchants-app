@@ -46,7 +46,10 @@ export default {
         toggleQRModal() {
             console.log("Hola1");
             this.$emit('scan');
-        }
+        },
+        showAddressModal() {
+            this.$refs.addressModal.openModal(); // Asegúrate de agregar una referencia al componente AddressModal en tu template
+        },
     }
 };
 </script>

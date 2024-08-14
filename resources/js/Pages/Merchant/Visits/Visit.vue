@@ -4,6 +4,9 @@
             <h2 class="font-semibold text-lg text-white leading-tight text-center ">
                 En Visita - {{ visit.point_of_sale.name }} - {{ visit.status }}
             </h2>
+            <p class="text-white text-center">
+                {{ visit.point_of_sale.address }}
+            </p>
         </template>
         <div class="max-w-2xl mx-auto">
             <div class="bg-white p-4">
@@ -19,7 +22,7 @@
                 <h3 class="font-bold subtitles">Subir Fotos</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div v-for="(photo, index) in photos" :key="index" class="relative">
-                        <img :src="photo.url" alt="Uploaded photo" class="w-full h-32 object-cover rounded-lg">
+                        <img :src="photo.url" alt="Foto subida" class="w-full h-32 object-cover rounded-lg">
                         <button @click="removePhoto(index)"
                             class="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full">
                             &times;
@@ -38,7 +41,7 @@
                 <h3 class="font-bold subtitles">Bitácora</h3>
                 <textarea v-model="description" class="w-full p-2 border rounded-lg" rows="4"
                     placeholder="Observaciones (opcional)">
-        </textarea>
+                </textarea>
             </div>
             <div class="p-4">
                 <button type="submit" @click="endVisit"
@@ -91,56 +94,56 @@ export default {
             return `${hours}h ${minutes}m ${seconds}s`;
         },
         uploadPhoto(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                if (this.photos.length < 4) {
-                    this.photos.push({ url: e.target.result, file });
-                } else {
-                    alert('You can upload a maximum of 4 photos.');
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-    },
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    if (this.photos.length < 4) {
+                        this.photos.push({ url: e.target.result, file });
+                    } else {
+                        alert('Puedes subir un máximo de 4 fotos.');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        },
         removePhoto(index) {
             this.photos.splice(index, 1);
         },
         async endVisit() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                const { latitude, longitude } = position.coords;
-                try {
-                    this.isLoading = true;
-                    const formData = new FormData();
-                    formData.append('visit_id', this.visit.id);
-                    formData.append('end_latitude', latitude);
-                    formData.append('end_longitude', longitude);
-                    formData.append('visit_overview', this.description);
-                    this.photos.slice(0, 4).forEach((photo, index) => {
-                        formData.append(`photos[${index}]`, photo.file);
-                    });
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const { latitude, longitude } = position.coords;
+                    try {
+                        this.isLoading = true;
+                        const formData = new FormData();
+                        formData.append('visit_id', this.visit.id);
+                        formData.append('end_latitude', latitude);
+                        formData.append('end_longitude', longitude);
+                        formData.append('visit_overview', this.description);
+                        this.photos.slice(0, 4).forEach((photo, index) => {
+                            formData.append(`photos[${index}]`, photo.file);
+                        });
 
-                    const response = await axios.post(route('merchant.endVisit'), formData, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data'
-                        }
-                    });
-                    console.log('Visit ended:', response.data);
-                    window.location.href = route('merchant.home');
-                } catch (error) {
-                    console.error('Error ending visit:', error);
-                } finally {
-                    this.isLoading = false;
-                }
-            }, (error) => {
-                console.error('Error getting location:', error);
-            });
-        } else {
-            console.error('Geolocation is not supported by this browser.');
+                        const response = await axios.post(route('merchant.endVisit'), formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                            }
+                        });
+                        console.log('Visita terminada:', response.data);
+                        window.location.href = route('merchant.home');
+                    } catch (error) {
+                        console.error('Error terminando la visita:', error);
+                    } finally {
+                        this.isLoading = false;
+                    }
+                }, (error) => {
+                    console.error('Error obteniendo la ubicación:', error);
+                });
+            } else {
+                console.error('La geolocalización no es soportada por este navegador.');
+            }
         }
-    }
     }
 };
 </script>

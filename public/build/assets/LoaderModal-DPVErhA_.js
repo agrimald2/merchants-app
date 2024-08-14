@@ -1,0 +1,1 @@
+import{_ as a}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{o as e,e as s,p as c,q as t,a as d}from"./app-_BQdblzI.js";const _={},r=o=>(c("data-v-aa5f0771"),o=o(),t(),o),n={class:"modal"},p=r(()=>d("div",{class:"loader"},null,-1)),i=[p];function l(o,f){return e(),s("div",n,i)}const u=a(_,[["render",l],["__scopeId","data-v-aa5f0771"]]);export{u as L};
